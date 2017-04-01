@@ -26,10 +26,10 @@ var bubblemap = function(){
       node.exit().remove();
 
       var node_vis = node
-        .enter().append("circle")
+        .enter().append("path")
         .merge(node)
         .attr("class", "node")
-        .attr("r", (d) => d.r)
+        .attr("d", (s) => circlepath(s.r))
         .style("fill", function(d,i) { return d.fill})
         .call(d3.drag()
           .on("start", dragstarted)
@@ -55,14 +55,17 @@ var bubblemap = function(){
         simulation.force("x_pos").x((d) => d.root_x)
         simulation.force("y_pos").y((d) => d.root_y)
 
-      // node.attr("transform", function(d) { return "translate(" + (d.x - d.origin_x) + "," + (d.y - d.origin_y) + ")"});
-
         node_vis
-            // .style("opacity", function(d) { return d.id == curr_state ? 0 : 1; })
-            .attr("r", (d) => d.r)
-            .style("fill", (d) => d.fill)
-            .attr("cx", (d) => d.x)
-            .attr("cy", (d) => d.y);
+        .attr("transform", function(d) { 
+          return "translate(" + (d.x) + "," + (d.y) + ")"
+        })
+        // .attr("d", (d) => d.d);
+        // node_vis
+        //     // .style("opacity", function(d) { return d.id == curr_state ? 0 : 1; })
+        //     .attr("r", (d) => d.r)
+        //     .style("fill", (d) => d.fill)
+        //     .attr("cx", (d) => d.x)
+        //     .attr("cy", (d) => d.y);
       }
 
       simulation.alpha(1).restart();
@@ -125,11 +128,15 @@ var bubblemap = function(){
   }
 
   bm.size = function(f, duration){
+    return bm.tween(f, "r", duration, d3.interpolateNumber);
+  }
+
+  bm.shape = function(f, duration){
     node.enter()
     .transition().duration(duration)
-    .tween("datum", dataTween(f, "r"));
+    .tween("d", f);
 
-    simulation.alphaTarget(0.7).restart();
+    return bm;
   }
 
   bm.tween = function(f, attr, duration, interpolator){
@@ -138,6 +145,7 @@ var bubblemap = function(){
     .tween("datum", dataTween(f, attr, interpolator));
     
     simulation.alphaTarget(0.5).restart();
+    return bm;
   }
 
   /* f is a function that generates the tween's "to" value */
@@ -159,6 +167,7 @@ var bubblemap = function(){
     return topo.features.map((d) => { 
     var center = pathGenerator.centroid(d);
     return {
+      d: circlepath(Math.sqrt(pathGenerator.area(d))/inv_size),
       r: Math.sqrt(pathGenerator.area(d))/inv_size, 
       area: pathGenerator.area(d), 
       origin_area: pathGenerator.area(d), 
@@ -171,10 +180,17 @@ var bubblemap = function(){
       id: d.id,
       fill: "steelblue",
       parent_id: parent ? parent.id : null,
-      shape: pathGenerator(d)
+      origin_shape: pathGenerator(d)
     }}).filter(d => d.x);
   }
 
+  function circlepath(r, x, y){
+    x = x || 0;
+    y = y || 0;
+    var p = d3.path();
+    p.arc(x, y, r, 0, Math.PI*2);
+    return p.toString();
+  }
 
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
