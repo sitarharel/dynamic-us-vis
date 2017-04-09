@@ -25,12 +25,15 @@ var bubblemap = function(){
 
       node.exit().remove();
 
-      var node_vis = node
+      node_vis = node
         .enter().append("path")
         .merge(node)
         .attr("class", "node")
-        .attr("d", (s) => circlepath(s.r))
+        .attr("d", (s) => mergablepath(s.origin_shape, s.r))
+        // .style("fill", "none")
         .style("fill", function(d,i) { return d.fill})
+        // .style("stroke", "black")
+        .style("fill-rule", "nonzero")
         .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
@@ -38,7 +41,7 @@ var bubblemap = function(){
         .on("click", (d) => {
           if(d.id > 100) return;
           var curr_state = d.id; 
-          console.log(curr_state);
+          console.log(d);
           // reboot(gennodes(counties(curr_state), 2, {id: d.id}))
         }); 
 
@@ -51,7 +54,7 @@ var bubblemap = function(){
       simulation.force("charge").strength((d) => d.parent_id ? -7 : 0);
 
       function ticked() {
-        simulation.force("collision").radius((d) => {return d.parent_id ? d.r : d.r + 1})
+        simulation.force("collision").radius((d) => {return d.no_clip ? 0 : d.r})
         simulation.force("x_pos").x((d) => d.root_x)
         simulation.force("y_pos").y((d) => d.root_y)
 
@@ -59,6 +62,7 @@ var bubblemap = function(){
         .attr("transform", function(d) { 
           return "translate(" + (d.x) + "," + (d.y) + ")"
         })
+
         // .attr("d", (d) => d.d);
         // node_vis
         //     // .style("opacity", function(d) { return d.id == curr_state ? 0 : 1; })
@@ -87,6 +91,15 @@ var bubblemap = function(){
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
     projection.fitExtent([[0,0], [width, height]], states);
+    centerStatePath = function(state_d){
+      var trans = projection.translate();
+      var center = pathGenerator.centroid(state_d).map(d => -d);
+      center[0] += width/2;
+      center[1] += height/2;
+      var res = d3.geoPath().projection(projection.translate(center))(state_d);
+      projection.translate(trans);
+      return res;
+    }
 
     return bm;
   }
@@ -118,8 +131,8 @@ var bubblemap = function(){
       // console.log(node);
     nodedata.forEach((d, i) => {
       var upd = f(d, i);
-      d.root_x = upd.x;
-      d.root_y = upd.y;
+      d.root_x = upd[0];
+      d.root_y = upd[1];
       // if(upd.shape) transize()
     });
     simulation.alphaTarget(0.5).restart();
@@ -132,15 +145,15 @@ var bubblemap = function(){
   }
 
   bm.shape = function(f, duration){
-    node.enter()
+    node_vis
     .transition().duration(duration)
-    .tween("d", f);
+    .attr("d", f);
 
     return bm;
   }
 
   bm.tween = function(f, attr, duration, interpolator){
-    node.enter()
+    node.enter() // change to node_vis
     .transition().duration(duration)
     .tween("datum", dataTween(f, attr, interpolator));
     
@@ -167,7 +180,7 @@ var bubblemap = function(){
     return topo.features.map((d) => { 
     var center = pathGenerator.centroid(d);
     return {
-      d: circlepath(Math.sqrt(pathGenerator.area(d))/inv_size),
+      d: mergablepath(d, Math.sqrt(pathGenerator.area(d))/inv_size),
       r: Math.sqrt(pathGenerator.area(d))/inv_size, 
       area: pathGenerator.area(d), 
       origin_area: pathGenerator.area(d), 
@@ -178,9 +191,12 @@ var bubblemap = function(){
       geo_origin_x: center[0], 
       geo_origin_y: center[1],
       id: d.id,
+      is_circle: true,
+      no_clip: false,
       fill: "steelblue",
       parent_id: parent ? parent.id : null,
-      origin_shape: pathGenerator(d)
+      origin_d: centerStatePath(d),
+      origin_shape: d
     }}).filter(d => d.x);
   }
 
@@ -190,6 +206,31 @@ var bubblemap = function(){
     var p = d3.path();
     p.arc(x, y, r, 0, Math.PI*2);
     return p.toString();
+  }
+
+  function mergablepath(d, r, x, y){
+    x = x || 0;
+    y = y || 0;
+    // var coords = d.geometry.coordinates[0];
+    // if(d.geometry.type == "MultiPolygon") {
+    //   console.log(d)
+    //   coords = d.geometry.coordinates.reduce((a,x) => a.concat(x[0]), []);
+    // }
+    // var len = coords.length;
+    var len = ((pathGenerator(d) || "").match(/L|M/g) || []).length
+    var angleoffset = 2 * Math.PI / len;
+    // var angle = -Math.PI * 3 / 4;
+    var angle = 0;
+    var res = "M ";
+    for (var i = 0; i < len - 1; i++){
+      res = res + " " + (x + r * Math.cos(angle)) + 
+      " " + (y + r * Math.sin(angle)) + " L "
+      angle += angleoffset;
+    }
+    res = res +  " " + (x + r * Math.cos(angle)) + 
+      " " + (y + r * Math.sin(angle)) + " Z"    // centroid = polygon.centroid(-1 / (6 * area)),
+    // console.log(res);
+    return res;
   }
 
   function dragstarted(d) {
