@@ -1,0 +1,136 @@
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Quicksand', sans-serif;
+        margin: 0;
+      }
+      #menu {
+        position: absolute;
+        right: 0;
+        width: 500px;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding-right: 50px;
+      }
+      .select_item:hover {
+        cursor: pointer;
+      }
+      #species_detail {
+        position: absolute;
+        left: 25;
+        top: 150;
+      }
+      #species_detail p {
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 0px;
+        margin-top: 0px;        
+      }
+      .detail {
+        padding-bottom: 25px;
+      }
+      .detail_name {
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .detail_icon {
+        float: left;
+        padding-right: 10px;
+        height: 38px;
+        width: 38px;
+      }
+      .action_button {
+        border: none;
+        color: white;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 500;
+        padding: 15px 32px;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 10;
+        margin-right: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="menu">
+      <div id="species_detail">
+        <div style="padding-bottom: 30px">
+          <span class="action_button" style="background: #e04f5f;">
+            Action 1
+          </span>
+          <span class="action_button" style="background: #f2ac2a;">
+            Action 2
+          </span>
+          <span class="action_button" style="background: #00bcd4;">
+            Action 3
+          </span>
+          <span class="action_button" style="background: #c0ca33;">
+            Action 4
+          </span>
+        </div>
+        <div style="padding-bottom: 20px">
+          <img src="https://c402277.ssl.cf1.rackcdn.com/photos/806/images/hero_full/SCR_47384.jpg?1345530917" width="500px" id="species_image">
+        </div>
+        <svg id="endangered_scale" width="500px" height="100px">
+        </svg>
+        <div class="detail">
+          <p id="species_description">The greater one-horned rhino is the largest of the rhino species. Once found across the entire northern part of the Indian sub-continent, rhino populations were severely depleted as they were hunted for sport and killed as agricultural pests. This pushed the species very close to extinction in the early 20th century and by 1975 there were only 600 individuals surviving in the wild.</p>
+        </div>
+
+        <div class="detail">
+          <img src="http://icons.iconarchive.com/icons/webalys/kameleon.pics/512/Graph-Magnifier-icon.png" class="detail_icon">
+          <p class="detail_name">Population</p>
+          <p id="species_population">3,555</p>
+        </div>
+
+        <div class="detail">
+          <img src="http://icons.iconarchive.com/icons/webalys/kameleon.pics/512/Dna-icon.png" class="detail_icon">
+          <p class="detail_name">Scientific Name</p>
+          <p id="species_scientific_name" style="font-style: italic">Rhinoceros unicornis</p>
+        </div>
+
+        <div class="detail">
+          <img src="http://icons.iconarchive.com/icons/webalys/kameleon.pics/512/Application-Map-icon.png" class="detail_icon">
+          <p class="detail_name">Habitat</p>
+          <p id="species_habitat">Tropical and Subtropical Grasslands, Savannas, and Shrublands</p>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script src="script.js"></script>
+  <script>
+    var data = [
+      {
+        "name": "Forest Elephant",
+        "scientific_name": "N/A",
+        "icon": "https://c402277.ssl.cf1.rackcdn.com/photos/1667/images/circle/HI_113471.jpg?1345600398",
+        "image": "https://c402277.ssl.cf1.rackcdn.com/photos/1668/images/story_full_width/HI_113483.jpg?1345550342",
+        "description": "Forest elephants are an elusive subspecies of African elephants and inhabit the densely wooded rainforests of west and central Africa. Their preference for dense forest habitat prohibits traditional counting methods such as visual identification. Their population is usually estimated through 'dung counts'—an analysis on the ground of the density and distribution of the feces.",
+        "habitat": "dense tropical forests",
+        "population": 3355,
+        "status": "Vulnerable"
+      }
+    ];
+
+    // copy the same elements
+    for(var i = 0; i < 10; i++) data.push(data[0])
+
+    var extinction_scale = new ExtinctionScale(d3.select("#species_detail svg"), 500);
+    extinction_scale.create();
+
+    var species_detail = new SpeciesDetail(data, extinction_scale);
+    species_detail.hide();
+
+    var species_list = new SpeciesList(data, species_detail);
+    species_list.create();
+  </script>
+</html>
