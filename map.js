@@ -17,8 +17,6 @@ var bubblemap = function(){
       
       node.exit().remove();
 
-      // var ndata = nodedata.filter(d => curr_state != d.id).concat(c);
-      
       node = svg
         .selectAll(".node")
         .data(nodedata);
@@ -29,7 +27,7 @@ var bubblemap = function(){
         .enter().append("path")
         .merge(node)
         .attr("class", "node")
-        .attr("d", (s) => mergablepath(s.origin_shape, s.r))
+        .attr("d", (s) => s.d)
         // .style("fill", "none")
         .style("fill", function(d,i) { return d.fill})
         // .style("stroke", "black")
@@ -54,13 +52,15 @@ var bubblemap = function(){
       simulation.force("charge").strength((d) => d.parent_id ? -7 : 0);
 
       function ticked() {
-        simulation.force("collision").radius((d) => {return d.no_clip ? 0 : d.r})
+        simulation.force("collision").radius((d) => {return d.no_clip ? 0 : Math.sqrt(d.area/Math.PI)})
         simulation.force("x_pos").x((d) => d.root_x)
         simulation.force("y_pos").y((d) => d.root_y)
 
         node_vis
         .attr("transform", function(d) { 
-          return "translate(" + (d.x) + "," + (d.y) + ")"
+          var scale = Math.sqrt(d.area/d.geo_origin_area);
+          if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
+          return "translate(" + d.x + ", " + d.y + ") scale("+ scale +") translate(" + (-d.geo_origin_x) + ", " + (-d.geo_origin_y) + ")";
         })
 
         // .attr("d", (d) => d.d);
@@ -70,6 +70,11 @@ var bubblemap = function(){
         //     .style("fill", (d) => d.fill)
         //     .attr("cx", (d) => d.x)
         //     .attr("cy", (d) => d.y);
+// 
+            // debugs.attr("r", (d) => 5)
+            // .attr("cx", (d) => d.x)
+            // .attr("cy", (d) => d.y);
+           
       }
 
       simulation.alpha(1).restart();
@@ -86,17 +91,35 @@ var bubblemap = function(){
     topology = topo;
     states = topojson.feature(topology, topology.objects.states)
     counties = topojson.feature(topology, topology.objects.counties)
-
+    // var badstates = [11];
+    // states.filter()
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
     projection.fitExtent([[0,0], [width, height]], states);
+
     centerStatePath = function(state_d){
       var trans = projection.translate();
       var center = pathGenerator.centroid(state_d).map(d => -d);
       center[0] += width/2;
       center[1] += height/2;
       var res = d3.geoPath().projection(projection.translate(center))(state_d);
+      // console.log(geoPath)
+
+    // svg.append("rect")
+    // .attr("x", bounds[0][0])
+    // .attr("y", bounds[0][1])
+    // .attr("width", (bounds[1][0]-bounds[0][0]))
+    // .attr("height", (bounds[1][1]-bounds[0][1]))
+    // .style("fill", "none")
+    // .style("stroke", "black");
+    // svg.append("circle")
+    // .attr("cx", center[0])
+    // .attr("cy", center[1])
+    // .attr("r", 5)
+    // .style("fill", "yellow")
+    // .style("stroke", "black");
+
       projection.translate(trans);
       return res;
     }
@@ -125,15 +148,13 @@ var bubblemap = function(){
   }
 
   /* f is a function that maps data to location 
-   * ex: sort((d, i) => { return {x: i * 10, y: 50}; }) 
+   * ex: location((d, i) => { return [i * 10, 50]; }) 
    */
-  bm.sort = function(f, duration){
-      // console.log(node);
+  bm.location = function(f, duration){
     nodedata.forEach((d, i) => {
       var upd = f(d, i);
       d.root_x = upd[0];
       d.root_y = upd[1];
-      // if(upd.shape) transize()
     });
     simulation.alphaTarget(0.5).restart();
 
@@ -141,7 +162,8 @@ var bubblemap = function(){
   }
 
   bm.size = function(f, duration){
-    return bm.tween(f, "r", duration, d3.interpolateNumber);
+    bm.tween(f, "area", duration, d3.interpolateNumber);
+    return bm;
   }
 
   bm.shape = function(f, duration){
@@ -156,7 +178,7 @@ var bubblemap = function(){
     node.enter() // change to node_vis
     .transition().duration(duration)
     .tween("datum", dataTween(f, attr, interpolator));
-    
+    // console.log("tweening " + attr);
     simulation.alphaTarget(0.5).restart();
     return bm;
   }
@@ -178,14 +200,23 @@ var bubblemap = function(){
     inv_size = inv_size || 2;
 
     return topo.features.map((d) => { 
+    // var npath = centerStatePath(d);
     var center = pathGenerator.centroid(d);
+    // console.log(npath);
+    var bounds = pathGenerator.bounds(d);
+    // var center = [(bounds[1][0]+bounds[0][0])/2, (bounds[1][1]+bounds[0][1])/2]
+    var bound_size = (bounds[1][0]-bounds[0][0]) * (bounds[1][1]-bounds[0][1])
+
     return {
-      d: mergablepath(d, Math.sqrt(pathGenerator.area(d))/inv_size),
-      r: Math.sqrt(pathGenerator.area(d))/inv_size, 
+      d: mergablepath(d, Math.sqrt(pathGenerator.area(d)/Math.PI), center[0], center[1]),
+      r: Math.sqrt(pathGenerator.area(d)/Math.PI), 
       area: pathGenerator.area(d), 
-      origin_area: pathGenerator.area(d), 
-      x: parent && parent.x ? parent.x : center[0], 
-      y: parent && parent.y ? parent.y : center[1], 
+      origin_area: pathGenerator.area(d),
+      geo_origin_area: pathGenerator.area(d),
+      bound_origin_area: bound_size,
+      bound_scale: false,
+      x: center[0], 
+      y: center[1], 
       root_x: center[0], 
       root_y: center[1],
       geo_origin_x: center[0], 
@@ -193,11 +224,11 @@ var bubblemap = function(){
       id: d.id,
       is_circle: true,
       no_clip: false,
-      fill: "steelblue",
+      fill: "royalblue",
       parent_id: parent ? parent.id : null,
-      origin_d: centerStatePath(d),
+      origin_d: pathGenerator(d),
       origin_shape: d
-    }}).filter(d => d.x);
+    }}).filter(d => d.x && d.id != 11);
   }
 
   function circlepath(r, x, y){
