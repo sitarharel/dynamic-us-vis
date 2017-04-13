@@ -16,12 +16,14 @@ d3.queue()
 
     var tools = d3.select("body").append("div").attr("class", "toolbar");
 
-    tools.append("button").text("DATA = CENSUS2010POP").on("click", () => {
-      state.set_data("CENSUS2010POP");
-    });
-    tools.append("button").text("DATA = DEATHS2012").on("click", () => {
-      state.set_data("DEATHS2012");
-    });
+    tools.append("select")
+      .on("change", function(){ state.set_data(d3.select(this).property("value")); })
+      .selectAll("option")
+      .data(Object.keys(pop[0]).slice(7))
+      .enter()
+      .append("option")
+      .text(function(d){ return d; });
+
     tools.append("button").text("STATE").on("click", () => {
       state.set_map_state("default");
     });
