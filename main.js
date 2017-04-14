@@ -21,6 +21,14 @@ d3.queue()
       .append("option")
       .text(function(d){ return d; });
 
+    tools.append("select")
+      .on("change", function(){ state.set_compared_to_data(d3.select(this).property("value")); })
+      .selectAll("option")
+      .data(Object.keys(pop[0]).slice(7))
+      .enter()
+      .append("option")
+      .text(function(d){ return d; });
+
     tools.append("button").text("STATE").on("click", () => {
       state.set_map_state("default");
     });
@@ -29,5 +37,8 @@ d3.queue()
     });
     tools.append("button").text("LAYOUT").on("click", () => {
       state.set_map_state("layout");
+    });
+    tools.append("button").text("GRAPH").on("click", () => {
+      state.set_map_state("graph");
     });
 });
