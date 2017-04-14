@@ -65,7 +65,9 @@ var bubblemap = function(){
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
-    projection.fitExtent([[0,0], [width, height]], states);
+    wPadding = width * 0.1;
+    hPadding = height * 0.1;
+    projection.fitExtent([[wPadding,hPadding], [width-wPadding, height-hPadding]], states);
 
     return bm;
   }

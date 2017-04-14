@@ -5,8 +5,20 @@ function State(svg, map, data) {
 
     var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
     var color = colors[0];
-    var locationScale;
-    var areaScale = d3.scaleLinear().range([500, 7500]);
+
+    var width = +svg.attr("width");
+    var height = +svg.attr("height");
+    var locationColumns = 9;
+    var locationRows = 7;
+    var locationCoordinates = [];
+    // Break the svg down into squares with locationColumns columns and locationRows rows
+    for(var x = width * 0.1; x < width - width * 0.1; x += (width - width * 0.1) / locationColumns) {
+        for(var y = height * 0.1; y < height - height * 0.1; y += (height - height * 0.1) / locationRows) {
+            locationCoordinates.push([x, y]);
+        }
+    }
+    var locationScale = function(d) { return locationCoordinates[d]; }
+    var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
 
     var state_mapping = {
@@ -35,10 +47,10 @@ function State(svg, map, data) {
         "layout": {
             "shape": (d) => d.state_shape,
             "shape_duration": 500,
-            "location": (d, i) => [(d.id%10) * 50 + 50, Math.floor(d.id/10) * 60 + 50],
+            "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {style: "opacity", f: (d) => 0.5}, 
-                {attr: "area", f: (d) => {d.no_clip = true; d.bound_scale = true; return 1000}},
+                {style: "opacity", f: (d) => 1}, 
+                {attr: "area", f: (d) => {d.no_clip = false; d.bound_scale = true; return width * 4}},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
             ],
             "tween_duration": 500
@@ -46,8 +58,8 @@ function State(svg, map, data) {
     }
 
     this.column = "CENSUS2010POP";
-    this.current_state = "default";
-    this.map_options = state_mapping["default"];
+    this.current_state = "layout";
+    this.map_options = state_mapping[this.current_state];
 
     var columnData = {};
 
@@ -68,17 +80,25 @@ function State(svg, map, data) {
     }
 
     this.get_color = function(n) {
-    	return colors[n % colors.length];
+        return colors[n % colors.length];
     }
 
     this.set_domains = function(extent) {
-    	areaScale.domain(extent);
-    	opacityScale.domain(extent);
+        areaScale.domain(extent);
+        opacityScale.domain(extent);
     }
 
     this.get_data = function(state_fips) {
         // Look up data for set column for this state based on its fips code (d.id)
-        return columnData[+state_fips];
+        if (this.current_state != "layout"){
+            return columnData[+state_fips];
+        }
+
+        // If the state is layout, then get the ranking instead of the actual data
+        var keys = [];
+        for(var key in columnData) keys.push(key);
+        keys.sort(function(a,b){return columnData[b]-columnData[a]});
+        return keys.indexOf(String(state_fips));
     }
 
     this.set_data = function(column, options) {
@@ -93,8 +113,8 @@ function State(svg, map, data) {
         // Change domains to reflect data changes
         this.set_domains(d3.extent(Object.values(columnData)));
 
-		// Pick a color for this dataset
-		color = this.get_color(Object.keys(this.data[0]).indexOf(column));
+        // Pick a color for this dataset
+        color = this.get_color(Object.keys(this.data[0]).indexOf(column));
 
         // Transform map with new data
         this.set_map_state(this.current_state, options);
