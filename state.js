@@ -108,7 +108,7 @@ function State(svg, map, data) {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
         opacityScale = d3.scaleLinear().range([0.1, 0.9]).domain(extent);
-        graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]).domain([Math.min(0, extent[0]), extent[1]]);
+        graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]).domain(extent);
 
         if (this.current_state == "layout")
             opacityScale = d3.scaleLinear().range([0.9,0.1]).domain([0, Object.values(columnData).length]);
@@ -137,7 +137,9 @@ function State(svg, map, data) {
         });
 
         // Pick a color for this dataset
-        color = this.get_color(Object.keys(this.data[0]).indexOf(column));
+        var columns = new Set();
+        Object.keys(this.data[0]).forEach(function(d){ columns.add(d.replace(/[0-9]/g, ''))});
+        color = this.get_color(Array.from(columns).indexOf(column.replace(/[0-9]/g, '')));
 
         // Transform map with new data
         this.set_map_state(this.current_state, options);
@@ -155,7 +157,7 @@ function State(svg, map, data) {
         });
 
         var extent = d3.extent(Object.values(comparedToData));
-        graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]).domain([Math.min(0, extent[0]), extent[1]]);
+        graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]).domain(extent);
 
         this.set_map_state(this.current_state);
     }
