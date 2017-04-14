@@ -7,6 +7,13 @@ var bubblemap = function(){
     .force("x_pos", d3.forceX(d => d.root[0]))
     .force("y_pos", d3.forceY(d => d.root[1]))
 
+    // quick tool for initial hovel label; move/change this later when we need to show actual data
+    var hovertool = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden");
+
     nodedata = gennodes(states);
 
     node = svg
@@ -24,7 +31,11 @@ var bubblemap = function(){
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-    .on("click", (d) => console.log(d)); 
+    .on("click", (d) => console.log(d))
+    .on("mouseover",function(){return hovertool.style("visibility", "visible");})
+    .on("mousemove", function(d){return hovertool.style("top",(d3.event.pageY+10)+"px")
+      .style("left",(d3.event.pageX+10)+"px").text(d.id);})
+    .on("mouseout", function(){return hovertool.style("visibility", "hidden");});
 
     simulation.nodes(nodedata).on("tick", on_tick);
     simulation.force("x_pos").strength((d) => 0.5);

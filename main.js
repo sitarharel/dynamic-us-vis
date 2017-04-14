@@ -2,10 +2,10 @@ var map;
 var state;
 d3.queue()
 .defer(d3.json, "us.json")
-.defer(d3.csv, "countypop.csv")
+.defer(d3.csv, "statedata.csv")
 .await(function(err, us, pop){
     if (err) throw err;
-    var svg = d3.select("body").append("svg").attr("width", 1000).attr("height", 800);
+    var svg = d3.select("body").append("svg").attr("width", 1200).attr("height", 800);
     
     map = bubblemap().svg(svg).topology(us)();
     
