@@ -12,8 +12,8 @@ function State(svg, map, data) {
     var locationRows = 7;
     var locationCoordinates = [];
     // Break the svg down into squares with locationColumns columns and locationRows rows
-    for(var x = width * 0.1; x < width - width * 0.1; x += (width - width * 0.1) / locationColumns) {
-        for(var y = height * 0.1; y < height - height * 0.1; y += (height - height * 0.1) / locationRows) {
+    for(var y = height * 0.1; y < height - height * 0.1; y += (height - height * 0.1) / locationRows) {
+        for(var x = width * 0.1; x < width - width * 0.1; x += (width - width * 0.1) / locationColumns) {
             locationCoordinates.push([x, y]);
         }
     }
