@@ -18,7 +18,7 @@ d3.queue()
     var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
     
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
-    
+
     state = new State(svg, map, pop, 1000, 800);
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
@@ -62,4 +62,6 @@ d3.queue()
     graph_circle_button.on("click", () => {
       state.set_map_state("graph_circle");
     });
+    map.onClick((d) => state.set_examine_state(d.id));
+
 });

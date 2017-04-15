@@ -24,7 +24,7 @@ var bubblemap = function(){
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-    .on("click", (d) => console.log(d))
+    .on("click", click_handler)
     .on("mouseover",function(){ hovertool.body.style("visibility", "visible") })
     .on("mousemove", updateHover)
     .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
@@ -51,6 +51,9 @@ var bubblemap = function(){
         if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
         return d.style.strokewidth / scale;
       });
+
+      if(click_handler != node_vis.on("click"))
+        node_vis.on("click", click_handler)
 
       // Set the node style for every style attribute
       Object.keys(node_vis.datum().style).forEach((key) => {
@@ -126,9 +129,11 @@ var bubblemap = function(){
    * sets the geo projection to be proj (defaults to Albers USA) */
   bm.topology = function(topo, proj){
     if(!topo) return topology;
+
     topology = topo;
     states = topojson.feature(topology, topology.objects.states)
     counties = topojson.feature(topology, topology.objects.counties)
+    click_handler = (d) => console.log(d);
     // var badstates = [11];
     // states.filter()
     if(proj) projection = proj;
@@ -166,6 +171,11 @@ var bubblemap = function(){
     return bm;
   }
 
+  bm.onClick = function(f){
+    if(!f) return click_handler;
+    click_handler = f;
+    return bm;
+  }
 
   bm.shape = function(f, duration){
     node_vis.transition().duration(duration).attr("d", f);

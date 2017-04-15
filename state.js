@@ -24,8 +24,8 @@ function State(svg, map, data, width, height) {
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]);
     var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1,]);
-    var self = this;
 
+    // this should definitely be temporary.
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
     map.forEach((d) => d.name = cleanData[d.id].STNAME);
 
@@ -126,6 +126,29 @@ function State(svg, map, data, width, height) {
 
         if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
         else this.remove_axises();
+    }
+
+    this.set_examine_state = function(id){
+
+        this.map.shape((d) => d.state_shape, 500)
+            .location((d) => { 
+                if(d.id == id) return [horizontal_offset + width/2, vertical_offset + height/2];
+                var sigma = d.index/50 * 2 * Math.PI;
+                var radius = 500;
+                return [horizontal_offset + width/2 + Math.cos(sigma) * radius,
+                    vertical_offset + height/2 + Math.sin(sigma) * radius]; 
+            }).tween([
+                {style: "opacity", f: (d) => 0.8}, 
+                {attr: "area", f: (d) => {
+                    if(d.id == id) return 70000;
+                    return 0;
+                }},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
+            ], 500)
+            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true;});
+
+        this.remove_axises();
     }
 
     this.get_color = function(n) {
