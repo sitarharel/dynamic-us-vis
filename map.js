@@ -8,15 +8,6 @@ var bubblemap = function(){
     .force("y_pos", d3.forceY(d => d.root[1]))
 
 
-    // quick tool for initial hovel label
-    // move/change this later when we need to show actual info
-    var hovertool = d3.select("body")
-    .append("div")
-    .attr('class', function () { return "tooltip"; })
-    .style("position", "absolute")
-    .style("z-index", "10")
-    .style("visibility", "hidden");
-
     nodedata = gennodes(states);
 
     node = svg
@@ -34,29 +25,21 @@ var bubblemap = function(){
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-    .on("click", (d) => console.log(d))
-    .on("mouseover",function(){return hovertool.style("visibility", "visible");})
-    .on("mousemove", function(d){
-      
 
-      var res = data.filter(function(obj) {
-        return obj.STATE == d.id;
-      });
+    .on("click", click_handler)
+    .on("mouseover",function(){ hovertool.body.style("visibility", "visible") })
+    .on("mousemove", updateHover)
+    .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
 
-      return hovertool.style("top",(d3.event.pageY+10)+"px")
-      .style("left",(d3.event.pageX+10)+"px")
-      .text(res[0].STNAME);
-      })
-    .on("mouseout", function(){return hovertool.style("visibility", "hidden");});
 
     simulation.nodes(nodedata).on("tick", on_tick);
-    simulation.force("x_pos").strength((d) => 0.5);
-    simulation.force("y_pos").strength((d) => 0.5);
+    simulation.force("x_pos").strength((d) => 0.1);
+    simulation.force("y_pos").strength((d) => 0.1);
     simulation.alpha(1).restart();
 
     // this gets called every tick. used to do force stuff but also for reactive updating
     function on_tick() {
-      simulation.force("collision").radius((d) => {return d.no_clip ? 0 : Math.sqrt(d.area/Math.PI)})
+      simulation.force("collision").radius((d) => {return d.no_clip ? 0 : Math.sqrt(d.area/Math.PI) + 2})
       simulation.force("x_pos").x((d) => d.root[0])
       simulation.force("y_pos").y((d) => d.root[1])
 
@@ -65,12 +48,81 @@ var bubblemap = function(){
         var scale = Math.sqrt(d.area/d.geo_origin_area);
         if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
         return "translate(" + d.x + ", " + d.y + ") scale("+ scale +") translate(" + (-d.geo_origin[0]) + ", " + (-d.geo_origin[1]) + ")";
+      })
+    .style("stroke-width", function(d) { 
+        var scale = Math.sqrt(d.area/d.geo_origin_area);
+        if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
+        return d.style.strokewidth / scale;
       });
+
+      if(click_handler != node_vis.on("click"))
+        node_vis.on("click", click_handler)
 
       // Set the node style for every style attribute
       Object.keys(node_vis.datum().style).forEach((key) => {
+        if(key == "strokewidth") return;
         node_vis.style(key, d => d.style[key])
       });
+    }
+
+    function generatesHTPaths(ht){
+      var arrow_offset = ht.xoffset, 
+        arrow_w = ht.width/8, 
+        arrow_h = ht.width/5;
+        var w = ht.width, h = ht.height, 
+          arrow_r_x = (arrow_offset + arrow_w),
+          arrow_l_x = (arrow_offset - arrow_w),
+          arrow_m_x = (arrow_offset),
+          arrow_m_y = (ht.height + arrow_h);
+        ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+            (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
+        ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
+          h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+          h + " 0," + h + " 0,0 Z";
+    }
+
+    // quick tool for initial hovel label
+    // move/change this later when we need to show actual info
+    hovertool = {
+      width: 120,
+      height: 150,
+      xoffset: 60,
+      yoffset: 175
+    };
+
+    generatesHTPaths(hovertool);
+
+    hovertool.body = svg.append("g")
+    .style("fill", "#3b4951")
+    .style("visibility", "hidden");
+    
+    hovertool.frame = hovertool.body.append("path")
+    .attr("d", hovertool.tpath)
+
+    hovertool.title = hovertool.body.append("text")
+    .style("text-anchor", "middle")
+    .attr("x", hovertool.width / 2)
+    .attr("y", 20);
+
+    hovertool.bodytext = hovertool.body.append("text")
+    .attr("x", 10)
+    .attr("y", 50);
+    
+    function updateHover(d){
+      var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
+      if(y < hovertool.yoffset) {
+        hovertool.is_bottom = true;
+        hovertool.frame.attr("d", hovertool.bpath);
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
+          + "," + (y + (hovertool.yoffset - hovertool.height)) + ")");
+      }else{
+        hovertool.is_bottom = false;
+        hovertool.frame.attr("d", hovertool.tpath);
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
+          + "," + (y - hovertool.yoffset) + ")");
+      } 
+      hovertool.title.text(d.name);
+      hovertool.bodytext.text(d.tooltip);
     }
 
     return bm;
@@ -88,26 +140,28 @@ var bubblemap = function(){
    * sets the geo projection to be proj (defaults to Albers USA) */
   bm.topology = function(topo, proj){
     if(!topo) return topology;
+
     topology = topo;
     states = topojson.feature(topology, topology.objects.states)
     counties = topojson.feature(topology, topology.objects.counties)
+    click_handler = (d) => console.log(d);
     // var badstates = [11];
     // states.filter()
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
-    wPadding = width * 0.1;
-    hPadding = height * 0.1;
-    projection.fitExtent([[wPadding,hPadding], [width-wPadding, height-hPadding]], states);
+    wPadding = (+svg.attr("width") - width)/2;
+    hPadding = (+svg.attr("height") - height)/2;
+    projection.fitExtent([[wPadding,hPadding], [width+wPadding, height+hPadding]], states);
 
     return bm;
   }
 
-  bm.svg = function(s){
+  bm.svg = function(s, w, h){
     if(!s) return svg;
     svg = s;
-    width = +svg.attr("width");
-    height = +svg.attr("height");
+    width = w ? w : +svg.attr("width");
+    height = h ? h : +svg.attr("height");
     return bm;
   }
 
@@ -116,7 +170,21 @@ var bubblemap = function(){
    */
   bm.location = function(f, duration){
     nodedata.forEach((d, i) => d.root = f(d, i));
-    simulation.alphaTarget(0.5).restart();
+    simulation.alphaTarget(1).restart();
+    return bm;
+  }
+
+    /* f is a function that takes in node data and mutates it. */
+  bm.forEach = function(f){
+    if(!f) return;
+    nodedata.forEach(f);
+    // simulation.alphaTarget(0.1).restart();
+    return bm;
+  }
+
+  bm.onClick = function(f){
+    if(!f) return click_handler;
+    click_handler = f;
     return bm;
   }
 
@@ -130,14 +198,14 @@ var bubblemap = function(){
     var tween_func = function(d){
       return function(t){
         return attrs.forEach((a) => {
-          dataTween(d, a.f, a.style ? a.style : a.attr, a.interpolator, a.style)(t);
+          dataTween(d, a.f, a.style ? a.style.replace(/-/g, '') : a.attr, a.interpolator, a.style)(t);
         });
       }
     }
     node.enter() // change to node_vis
     .transition().duration(duration)
     .tween("datum", tween_func);
-    simulation.alphaTarget(0.5).restart();
+    simulation.alphaTarget(1).restart();
     return bm;
   }
 
@@ -170,6 +238,8 @@ var bubblemap = function(){
       bound_scale: false, // whether to scale state based on bound size or path area
       x: center[0], 
       y: center[1], 
+      tooltip: "This is a tooltip",
+      name: "",
       root: center, // roots are the locations that objects are attracted to
       geo_origin: center, // geo_origin is the offset value to the center of the shape in the path
                           // ex: a square from -5,-5 to 15,15 would have geo_origin = [5, 5]
@@ -177,9 +247,11 @@ var bubblemap = function(){
       no_clip: false, // whether or not it should collide with others
       no_drag: false, // whether or not user should be able to interact with nodes
       state_shape: pathGenerator(d), // shape of the state
-      origin_shape: d, 
+      origin_shape: d,
       style: {
         fill: "royalblue",
+        stroke: "white",
+        strokewidth: 0,
         opacity: 1
       }
     }}).filter(d => d.x && d.id != 11);
@@ -218,13 +290,15 @@ var bubblemap = function(){
 
   function dragstarted(d) {
     if(d.no_drag) return;
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    hovertool.body.style("visibility", "hidden");
+    if (!d3.event.active) simulation.alphaTarget(1).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
 
   function dragged(d) {
     if(d.no_drag) return;
+    hovertool.body.style("visibility", "hidden");
     d.fx = d3.event.x;
     d.fy = d3.event.y;
   }

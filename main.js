@@ -5,6 +5,7 @@ var state_button = d3.select("#STATE_button");
 var circle_button = d3.select("#CIRCLE_button");
 var layout_button = d3.select("#LAYOUT_button");
 var graph_button = d3.select("#GRAPH_button");
+var graph_circle_button = d3.select("#GRAPH_CIRCLE_button");
 var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
 
@@ -14,11 +15,13 @@ d3.queue()
 .defer(d3.csv, "statedata.csv")
 .await(function(err, us, pop){
     if (err) throw err;
-    var svg = d3.select("#statesmap").attr("width", 1000).attr("height", 800);
+    var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
     
-    map = bubblemap().svg(svg).topology(us).data(pop)();
-    
-    state = new State(svg, map, pop);
+
+    map = bubblemap().svg(svg, 1000, 800).topology(us)();
+
+    state = new State(svg, map, pop, 1000, 800);
+
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
           Object.keys(state.data[0]).indexOf(state.column)));
@@ -58,4 +61,9 @@ d3.queue()
     graph_button.on("click", () => {
       state.set_map_state("graph");
     });
+    graph_circle_button.on("click", () => {
+      state.set_map_state("graph_circle");
+    });
+    map.onClick((d) => state.set_examine_state(d.id));
+
 });
