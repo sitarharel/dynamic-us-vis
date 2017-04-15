@@ -5,6 +5,7 @@ var state_button = d3.select("#STATE_button");
 var circle_button = d3.select("#CIRCLE_button");
 var layout_button = d3.select("#LAYOUT_button");
 var graph_button = d3.select("#GRAPH_button");
+var graph_circle_button = d3.select("#GRAPH_CIRCLE_button");
 var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
 
@@ -58,7 +59,7 @@ d3.queue()
     graph_button.on("click", () => {
       state.set_map_state("graph");
     });
-    tools.append("button").text("GRAPH_CIRCLE").on("click", () => {
+    graph_circle_button.on("click", () => {
       state.set_map_state("graph_circle");
     });
 });
