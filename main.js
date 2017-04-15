@@ -41,4 +41,7 @@ d3.queue()
     tools.append("button").text("GRAPH").on("click", () => {
       state.set_map_state("graph");
     });
+    tools.append("button").text("GRAPH_CIRCLE").on("click", () => {
+      state.set_map_state("graph_circle");
+    });
 });
