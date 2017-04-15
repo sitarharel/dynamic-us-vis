@@ -30,9 +30,11 @@ function State(svg, map, data) {
             "location": (d) => d.geo_origin,
             "tween": [
                 {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
-                {attr: "area", f: (d) => {d.no_clip = true; d.bound_scale = false; return d.origin_area }},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
+                {attr: "area", f: (d) => d.origin_area},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => 0}
             ],
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
             "tween_duration": 1000
         },
         "circle": {
@@ -41,9 +43,11 @@ function State(svg, map, data) {
             "location": (d) => d.geo_origin,
             "tween": [
                 {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
-                {attr: "area", f: (d) => { d.no_clip = false; d.bound_scale = false; return areaScale(+this.get_data(d.id)); }},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
+                {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => 3}
             ],
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false;},
             "tween_duration": 300
         },
         "layout": {
@@ -52,9 +56,11 @@ function State(svg, map, data) {
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
                 {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
-                {attr: "area", f: (d) => {d.no_clip = false; d.bound_scale = true; return width * 4}},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
+                {attr: "area", f: (d) => width * 4},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => 1}
             ],
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true;},
             "tween_duration": 500
         },
         "graph": {
@@ -63,10 +69,12 @@ function State(svg, map, data) {
             "location": (d) => { return [graphXScale(this.get_data(d.id)), graphYScale(this.get_compared_to_data(d.id))]; },
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
-                {attr: "area", f: (d) => {d.no_clip = true; d.bound_scale = false; return width / 2 }},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
+                {attr: "area", f: (d) => width / 2 },
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => 0}
             ],
-            "tween_duration": 1000
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
+            "tween_duration": 500
         },
     }
 
@@ -94,7 +102,8 @@ function State(svg, map, data) {
         // Transform the map based on options given
         this.map.shape(stateOptions.shape, stateOptions.shape_duration)
             .location(stateOptions.location)
-            .tween(stateOptions.tween, stateOptions.tween_duration);
+            .tween(stateOptions.tween, stateOptions.tween_duration)
+            .forEach(stateOptions.forEach);
 
         if (this.current_state == "graph") this.draw_axises();
         else this.remove_axises();
