@@ -15,11 +15,11 @@ d3.queue()
 .defer(d3.csv, "statedata.csv")
 .await(function(err, us, pop){
     if (err) throw err;
-    var svg = d3.select("#statesmap").attr("width", 1000).attr("height", 800);
+    var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
     
-    map = bubblemap().svg(svg).topology(us)();
+    map = bubblemap().svg(svg, 1000, 800).topology(us)();
     
-    state = new State(svg, map, pop);
+    state = new State(svg, map, pop, 1000, 800);
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
           Object.keys(state.data[0]).indexOf(state.column)));

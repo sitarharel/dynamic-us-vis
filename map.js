@@ -84,18 +84,18 @@ var bubblemap = function(){
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
-    wPadding = width * 0.1;
-    hPadding = height * 0.1;
-    projection.fitExtent([[wPadding,hPadding], [width-wPadding, height-hPadding]], states);
+    wPadding = (+svg.attr("width") - width)/2;
+    hPadding = (+svg.attr("height") - height)/2;
+    projection.fitExtent([[wPadding,hPadding], [width+wPadding, height+hPadding]], states);
 
     return bm;
   }
 
-  bm.svg = function(s){
+  bm.svg = function(s, w, h){
     if(!s) return svg;
     svg = s;
-    width = +svg.attr("width");
-    height = +svg.attr("height");
+    width = w ? w : +svg.attr("width");
+    height = h ? h : +svg.attr("height");
     return bm;
   }
 
@@ -104,7 +104,7 @@ var bubblemap = function(){
    */
   bm.location = function(f, duration){
     nodedata.forEach((d, i) => d.root = f(d, i));
-    simulation.alphaTarget(0.8).restart();
+    simulation.alphaTarget(1).restart();
     return bm;
   }
 
@@ -134,7 +134,7 @@ var bubblemap = function(){
     node.enter() // change to node_vis
     .transition().duration(duration)
     .tween("datum", tween_func);
-    simulation.alphaTarget(0.8).restart();
+    simulation.alphaTarget(1).restart();
     return bm;
   }
 

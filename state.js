@@ -1,4 +1,4 @@
-function State(svg, map, data) {
+function State(svg, map, data, width, height) {
     this.svg = svg;
     this.map = map;
     this.data = data;
@@ -6,15 +6,17 @@ function State(svg, map, data) {
     var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
     var color = colors[0];
 
-    var width = +svg.attr("width");
-    var height = +svg.attr("height");
+    width = width ? width : +svg.attr("width");
+    height = height ? height : +svg.attr("height");
+    var horizontal_offset = (+svg.attr("width") - width)/2;
+    var vertical_offset = (+svg.attr("height") - height)/2;
     var locationColumns = 9;
     var locationRows = 7;
     var locationCoordinates = [];
     // Break the svg down into squares with locationColumns columns and locationRows rows
     for(var y = height * 0.1; y < height - height * 0.1; y += (height - height * 0.1) / locationRows) {
         for(var x = width * 0.1; x < width - width * 0.1; x += (width - width * 0.1) / locationColumns) {
-            locationCoordinates.push([x, y]);
+            locationCoordinates.push([horizontal_offset + x, vertical_offset + y]);
         }
     }
     var locationScale = function(d) { return locationCoordinates[d]; }
@@ -82,7 +84,7 @@ function State(svg, map, data) {
             "location": (d) => { return [graphXScale(this.get_data(d.id)), graphYScale(this.get_compared_to_data(d.id))]; },
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
-                {attr: "area", f: (d) => 50 },
+                {attr: "area", f: (d) => 50},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
@@ -92,8 +94,8 @@ function State(svg, map, data) {
     }
 
     this.column = "CENSUS2010POP";
-    this.compared_to = "CENSUS2010POP";
-    this.current_state = "layout";
+    this.compared_to = "STARBUCKS";
+    this.current_state = "default";
     this.map_options = state_mapping[this.current_state];
 
     var columnData = {};
@@ -130,7 +132,7 @@ function State(svg, map, data) {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
         opacityScale = d3.scaleLinear().range([0.1, 0.9]).domain(extent);
-        graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]).domain(extent);
+        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(extent);
 
         if (this.current_state == "layout")
             opacityScale = d3.scaleLinear().range([0.9,0.1]).domain([0, Object.values(columnData).length]);
@@ -179,7 +181,7 @@ function State(svg, map, data) {
             comparedToData[+d.STATE] = (comparedToData[+d.STATE] || 0) + +d[column];
         });
         var extent = d3.extent(Object.values(comparedToData));
-        graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]).domain(extent);
+        graphYScale = d3.scaleLinear().range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1]).domain(extent);
 
         this.set_map_state(this.current_state);
     }
@@ -192,17 +194,17 @@ function State(svg, map, data) {
         this.remove_axises();
         this.svg.append("g")
             .attr("class", "graph-axis")
-            .attr("transform", "translate(0," + (height - height * 0.1) + ")")
+            .attr("transform", "translate(0," + (vertical_offset + height - height * 0.1) + ")")
             .call(d3.axisBottom(graphXScale));
         this.svg.append("g")
             .attr("class", "graph-axis")
-            .attr("transform", "translate(" + (width * 0.1) + ",0)")
+            .attr("transform", "translate(" + (horizontal_offset + width * 0.1) + ",0)")
             .call(d3.axisLeft(graphYScale));
 
         this.svg.append("text")
             .attr("class", "graph-axis")
-            .attr("y", height - height * 0.05 )
-            .attr("x", (width / 2))
+            .attr("y", vertical_offset + height - height * 0.05 )
+            .attr("x", horizontal_offset + (width / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
             .text(this.column);
@@ -210,8 +212,8 @@ function State(svg, map, data) {
         this.svg.append("text")
             .attr("class", "graph-axis")
             .attr("transform", "rotate(-90)")
-            .attr("y", width * 0.01)
-            .attr("x", 0 - height/2)
+            .attr("y", horizontal_offset + width * 0.01)
+            .attr("x", 0 - height/2 - vertical_offset)
             .style("text-anchor", "middle")
             .text(this.compared_to)
     }
