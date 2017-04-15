@@ -24,6 +24,11 @@ function State(svg, map, data, width, height) {
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]);
     var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1,]);
+    var self = this;
+
+    var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
+    console.log(cleanData);
+    map.forEach((d) => d.name = cleanData[d.id].STNAME);
 
     var state_mapping = {
         "default": {
@@ -49,7 +54,7 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false;},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
             "tween_duration": 300
         },
         "layout": {
@@ -62,7 +67,7 @@ function State(svg, map, data, width, height) {
                 {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true;},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.tooltip = cleanData[d.id][this.column]},
             "tween_duration": 500
         },
         "graph": {
@@ -75,7 +80,7 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -88,7 +93,7 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
             "tween_duration": 500
         },
     }

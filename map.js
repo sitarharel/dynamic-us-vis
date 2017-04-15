@@ -7,15 +7,6 @@ var bubblemap = function(){
     .force("x_pos", d3.forceX(d => d.root[0]))
     .force("y_pos", d3.forceY(d => d.root[1]))
 
-
-    // quick tool for initial hovel label
-    // move/change this later when we need to show actual info
-    var hovertool = d3.select("body")
-    .append("div")
-    .style("position", "absolute")
-    .style("z-index", "10")
-    .style("visibility", "hidden");
-
     nodedata = gennodes(states);
 
     node = svg
@@ -34,10 +25,9 @@ var bubblemap = function(){
       .on("drag", dragged)
       .on("end", dragended))
     .on("click", (d) => console.log(d))
-    .on("mouseover",function(){return hovertool.style("visibility", "visible");})
-    .on("mousemove", function(d){return hovertool.style("top",(d3.event.pageY+10)+"px")
-      .style("left",(d3.event.pageX+10)+"px").text(d.id);})
-    .on("mouseout", function(){return hovertool.style("visibility", "hidden");});
+    .on("mouseover",function(){ hovertool.body.style("visibility", "visible") })
+    .on("mousemove", updateHover)
+    .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
 
     simulation.nodes(nodedata).on("tick", on_tick);
     simulation.force("x_pos").strength((d) => 0.1);
@@ -67,6 +57,49 @@ var bubblemap = function(){
         if(key == "strokewidth") return;
         node_vis.style(key, d => d.style[key])
       });
+    }
+
+    function generatesHTPath(ht, is_bottom){
+      var arrow_offset = -ht.xoffset, 
+        arrow_w = ht.width/8, 
+        arrow_h = ht.width/5;
+        // if(is_bottom)
+        return "M0,0 L" + ht.width + ",0 " + ht.width + "," + ht.height + " " + 
+        (arrow_offset + arrow_w) + "," + ht.height + " " + arrow_offset + "," + 
+        (ht.height + arrow_h) + " " + (arrow_offset - arrow_w) + "," + 
+        ht.height + " 0," + ht.height + " 0,0 Z";
+    }
+
+    // quick tool for initial hovel label
+    // move/change this later when we need to show actual info
+    hovertool = {
+      width: 120,
+      height: 150,
+      xoffset: -60,
+      yoffset: -175
+    };
+
+    hovertool.body = svg.append("g")
+    .style("fill", "#3b4951")
+    .style("visibility", "hidden");
+    
+    hovertool.frame = hovertool.body.append("path")
+    .attr("d", generatesHTPath(hovertool))
+
+    hovertool.title = hovertool.body.append("text")
+    .style("text-anchor", "middle")
+    .attr("x", hovertool.width / 2)
+    .attr("y", 20);
+
+    hovertool.bodytext = hovertool.body.append("text")
+    .attr("x", 10)
+    .attr("y", 50);
+    
+    function updateHover(d){
+      var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
+      hovertool.body.attr("transform", "translate(" + (x + hovertool.xoffset) + "," + (y + hovertool.yoffset) + ")");
+      hovertool.title.text(d.name);
+      hovertool.bodytext.text(d.tooltip);
     }
 
     return bm;
@@ -219,6 +252,7 @@ var bubblemap = function(){
 
   function dragstarted(d) {
     if(d.no_drag) return;
+    hovertool.body.style("visibility", "hidden");
     if (!d3.event.active) simulation.alphaTarget(1).restart();
     d.fx = d.x;
     d.fy = d.y;
@@ -226,6 +260,7 @@ var bubblemap = function(){
 
   function dragged(d) {
     if(d.no_drag) return;
+    hovertool.body.style("visibility", "hidden");
     d.fx = d3.event.x;
     d.fy = d3.event.y;
   }
