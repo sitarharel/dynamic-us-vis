@@ -76,6 +76,19 @@ function State(svg, map, data) {
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
             "tween_duration": 500
         },
+        "graph_circle": {
+            "shape": (d) => d.circle_path,
+            "shape_duration": 500,
+            "location": (d) => { return [graphXScale(this.get_data(d.id)), graphYScale(this.get_compared_to_data(d.id))]; },
+            "tween": [
+                {style: "opacity", f: (d) => 0.8}, 
+                {attr: "area", f: (d) => 50 },
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "stroke-width", f: (d) => 0}
+            ],
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
+            "tween_duration": 500
+        },
     }
 
     this.column = "CENSUS2010POP";
@@ -105,7 +118,7 @@ function State(svg, map, data) {
             .tween(stateOptions.tween, stateOptions.tween_duration)
             .forEach(stateOptions.forEach);
 
-        if (this.current_state == "graph") this.draw_axises();
+        if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
         else this.remove_axises();
     }
 
