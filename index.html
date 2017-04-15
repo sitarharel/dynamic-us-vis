@@ -2,18 +2,23 @@
 <html>
 <head>
     <title>Sitar Harel - sh927</title>
-    <style>
-    body { 
-        font-family: 'Josefin Sans', sans-serif;
-        font-size: 11px; 
-    }
-    svg {
-        display: block;
-        margin: 0 auto;
-    }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+    <h1>The United <span class="emph">States</span> of America</h1>
+    <svg id="statesmap"></svg>
+    <div id="selects">
+        <select id="x_axis"></select>
+        <select id="y_axis"></select>
+    </div>
+    <div id="buttons">
+        <button id="STATE_button">COLOR MAP</button>
+        <button id="CIRCLE_button">CIRCLE MAP</button>
+        <button id="LAYOUT_button">SORTED</button>
+        <button id="GRAPH_button">GRAPH</button>
+    </div>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
 <!--     <script src="../utils/d3.v4.min.js"></script>
@@ -22,5 +27,7 @@
     <script type="text/javascript" src="map.js"></script>
     <script type="text/javascript" src="state.js"></script>
     <script type="text/javascript" src="main.js"></script>
+
+    
 </body>
 </html>

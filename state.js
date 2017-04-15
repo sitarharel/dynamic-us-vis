@@ -21,7 +21,7 @@ function State(svg, map, data) {
     var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]);
-    var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]);
+    var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1,]);
 
     var state_mapping = {
         "default": {
@@ -42,7 +42,7 @@ function State(svg, map, data) {
             "shape_duration": 200,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => 0.8},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
@@ -55,9 +55,9 @@ function State(svg, map, data) {
             "shape_duration": 500,
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
                 {attr: "area", f: (d) => width * 4},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true;},
@@ -95,7 +95,7 @@ function State(svg, map, data) {
 
         // Retrieve options of this state_name and overwrite existing values with
         // values from data-specific options, if any
-        var stateOptions = state_mapping[state_name];
+        var stateOptions = state_mapping[state_name] || state_mapping["default"];
         stateOptions = Object.assign(stateOptions, options || {});
         this.map_options = stateOptions;
 
@@ -121,6 +121,7 @@ function State(svg, map, data) {
 
         if (this.current_state == "layout")
             opacityScale = d3.scaleLinear().range([0.9,0.1]).domain([0, Object.values(columnData).length]);
+
     }
 
     this.get_data = function(state_fips) {
@@ -164,7 +165,6 @@ function State(svg, map, data) {
         this.data.forEach(function(d){
             comparedToData[+d.STATE] = (comparedToData[+d.STATE] || 0) + +d[column];
         });
-
         var extent = d3.extent(Object.values(comparedToData));
         graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]).domain(extent);
 
@@ -198,7 +198,7 @@ function State(svg, map, data) {
             .attr("class", "graph-axis")
             .attr("transform", "rotate(-90)")
             .attr("y", width * 0.01)
-            .attr("x", 0 - height / 2)
+            .attr("x", 0 - height/2)
             .style("text-anchor", "middle")
             .text(this.compared_to)
     }
