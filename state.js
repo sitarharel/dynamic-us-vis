@@ -27,7 +27,6 @@ function State(svg, map, data, width, height) {
     var self = this;
 
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
-    console.log(cleanData);
     map.forEach((d) => d.name = cleanData[d.id].STNAME);
 
     var state_mapping = {

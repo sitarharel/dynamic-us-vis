@@ -59,15 +59,20 @@ var bubblemap = function(){
       });
     }
 
-    function generatesHTPath(ht, is_bottom){
-      var arrow_offset = -ht.xoffset, 
+    function generatesHTPaths(ht){
+      var arrow_offset = ht.xoffset, 
         arrow_w = ht.width/8, 
         arrow_h = ht.width/5;
-        // if(is_bottom)
-        return "M0,0 L" + ht.width + ",0 " + ht.width + "," + ht.height + " " + 
-        (arrow_offset + arrow_w) + "," + ht.height + " " + arrow_offset + "," + 
-        (ht.height + arrow_h) + " " + (arrow_offset - arrow_w) + "," + 
-        ht.height + " 0," + ht.height + " 0,0 Z";
+        var w = ht.width, h = ht.height, 
+          arrow_r_x = (arrow_offset + arrow_w),
+          arrow_l_x = (arrow_offset - arrow_w),
+          arrow_m_x = (arrow_offset),
+          arrow_m_y = (ht.height + arrow_h);
+        ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+            (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
+        ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
+          h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+          h + " 0," + h + " 0,0 Z";
     }
 
     // quick tool for initial hovel label
@@ -75,16 +80,18 @@ var bubblemap = function(){
     hovertool = {
       width: 120,
       height: 150,
-      xoffset: -60,
-      yoffset: -175
+      xoffset: 60,
+      yoffset: 175
     };
+
+    generatesHTPaths(hovertool);
 
     hovertool.body = svg.append("g")
     .style("fill", "#3b4951")
     .style("visibility", "hidden");
     
     hovertool.frame = hovertool.body.append("path")
-    .attr("d", generatesHTPath(hovertool))
+    .attr("d", hovertool.tpath)
 
     hovertool.title = hovertool.body.append("text")
     .style("text-anchor", "middle")
@@ -97,7 +104,17 @@ var bubblemap = function(){
     
     function updateHover(d){
       var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
-      hovertool.body.attr("transform", "translate(" + (x + hovertool.xoffset) + "," + (y + hovertool.yoffset) + ")");
+      if(y < hovertool.yoffset) {
+        hovertool.is_bottom = true;
+        hovertool.frame.attr("d", hovertool.bpath);
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
+          + "," + (y + (hovertool.yoffset - hovertool.height)) + ")");
+      }else{
+        hovertool.is_bottom = false;
+        hovertool.frame.attr("d", hovertool.tpath);
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
+          + "," + (y - hovertool.yoffset) + ")");
+      } 
       hovertool.title.text(d.name);
       hovertool.bodytext.text(d.tooltip);
     }
