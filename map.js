@@ -7,7 +7,9 @@ var bubblemap = function(){
     .force("x_pos", d3.forceX(d => d.root[0]))
     .force("y_pos", d3.forceY(d => d.root[1]))
 
-    // quick tool for initial hovel label; move/change this later when we need to show actual data
+
+    // quick tool for initial hovel label
+    // move/change this later when we need to show actual info
     var hovertool = d3.select("body")
     .append("div")
     .style("position", "absolute")

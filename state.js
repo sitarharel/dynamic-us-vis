@@ -21,7 +21,7 @@ function State(svg, map, data) {
     var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]);
-    var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]);
+    var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1,]);
 
     var state_mapping = {
         "default": {
@@ -29,7 +29,7 @@ function State(svg, map, data) {
             "shape_duration": 500,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }}, 
                 {attr: "area", f: (d) => {d.no_clip = true; d.bound_scale = false; return d.origin_area }},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
             ],
@@ -40,8 +40,8 @@ function State(svg, map, data) {
             "shape_duration": 200,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
-                {attr: "area", f: (d) => { d.no_clip = false; d.bound_scale = false; return areaScale(+this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => 0.8}, 
+                {attr: "area", f: (d) => { d.no_clip = false; d.bound_scale = false; return areaScale(this.get_data(d.id)); }},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
             ],
             "tween_duration": 300
@@ -51,7 +51,7 @@ function State(svg, map, data) {
             "shape_duration": 500,
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => 1}, 
                 {attr: "area", f: (d) => {d.no_clip = false; d.bound_scale = true; return width * 4}},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color}
             ],
@@ -87,7 +87,7 @@ function State(svg, map, data) {
 
         // Retrieve options of this state_name and overwrite existing values with
         // values from data-specific options, if any
-        var stateOptions = state_mapping[state_name];
+        var stateOptions = state_mapping[state_name] || state_mapping["default"];
         stateOptions = Object.assign(stateOptions, options || {});
         this.map_options = stateOptions;
 
@@ -106,12 +106,9 @@ function State(svg, map, data) {
 
     this.set_domains = function() {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
-        areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
-        opacityScale = d3.scaleLinear().range([0.1, 0.9]).domain(extent);
-        graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]).domain([Math.min(0, extent[0]), extent[1]]);
-
-        if (this.current_state == "layout")
-            opacityScale = d3.scaleLinear().range([0.9,0.1]).domain([0, Object.values(columnData).length]);
+        areaScale.domain(extent);
+        opacityScale.domain(extent);
+        graphXScale.domain([extent[0], extent[1]]);
     }
 
     this.get_data = function(state_fips) {
@@ -153,10 +150,8 @@ function State(svg, map, data) {
         this.data.forEach(function(d){
             comparedToData[+d.STATE] = (comparedToData[+d.STATE] || 0) + +d[column];
         });
-
         var extent = d3.extent(Object.values(comparedToData));
-        graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1]).domain([Math.min(0, extent[0]), extent[1]]);
-
+        graphYScale.domain([extent[0], extent[1]]);
         this.set_map_state(this.current_state);
     }
 
@@ -187,7 +182,7 @@ function State(svg, map, data) {
             .attr("class", "graph-axis")
             .attr("transform", "rotate(-90)")
             .attr("y", width * 0.01)
-            .attr("x", 0 - height / 2)
+            .attr("x", 0 - height/2)
             .style("text-anchor", "middle")
             .text(this.compared_to)
     }

@@ -1,27 +1,44 @@
 var map;
 var state;
+
+var state_button = d3.select("#STATE_button");
+var circle_button = d3.select("#CIRCLE_button");
+var layout_button = d3.select("#LAYOUT_button");
+var graph_button = d3.select("#GRAPH_button");
+var select_x = d3.select("#x_axis");
+var select_y = d3.select("#y_axis");
+
+
 d3.queue()
 .defer(d3.json, "us.json")
 .defer(d3.csv, "statedata.csv")
 .await(function(err, us, pop){
     if (err) throw err;
-    var svg = d3.select("body").append("svg").attr("width", 1200).attr("height", 800);
+    var svg = d3.select("#statesmap").attr("width", 1000).attr("height", 800);
     
     map = bubblemap().svg(svg).topology(us)();
     
     state = new State(svg, map, pop);
 
+    document.documentElement.style.setProperty('--main-color',state.get_color(
+          Object.keys(state.data[0]).indexOf(state.column)));
+
+
     var tools = d3.select("body").append("div").attr("class", "toolbar");
 
-    tools.append("select")
-      .on("change", function(){ state.set_data(d3.select(this).property("value")); })
+    select_x
+      .on("change", function(){ 
+        state.set_data(d3.select(this).property("value")); 
+       document.documentElement.style.setProperty('--main-color',state.get_color(
+          Object.keys(state.data[0]).indexOf(state.column)));
+     })
       .selectAll("option")
       .data(Object.keys(pop[0]).slice(7))
       .enter()
       .append("option")
       .text(function(d){ return d; });
 
-    tools.append("select")
+    select_y
       .on("change", function(){ state.set_compared_to_data(d3.select(this).property("value")); })
       .selectAll("option")
       .data(Object.keys(pop[0]).slice(7))
@@ -29,16 +46,16 @@ d3.queue()
       .append("option")
       .text(function(d){ return d; });
 
-    tools.append("button").text("STATE").on("click", () => {
+     state_button.on("click", () => {
       state.set_map_state("default");
     });
-    tools.append("button").text("CIRCLE").on("click", () => {
+    circle_button.on("click", () => {
       state.set_map_state("circle");
     });
-    tools.append("button").text("LAYOUT").on("click", () => {
+    layout_button.on("click", () => {
       state.set_map_state("layout");
     });
-    tools.append("button").text("GRAPH").on("click", () => {
+    graph_button.on("click", () => {
       state.set_map_state("graph");
     });
 });

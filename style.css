@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web');
+
+:root{
+	/*Can manipulate it in js by:
+	document.body.style.setProperty('--main-color',"#6c0")*/
+    --main-color:#73caff;
+    --text-color:#ffffff;
+    --background:#3b4951;
+}
+svg {
+		text-align: center;
+        display: block;
+        margin: auto auto;  
+        stroke: var(--text-color);
+        stroke-width:1px;
+        /*border: 1px solid red;*/
+}
+
+text { fill: var(--text-color);; }
+
+body{
+	font-family:'Titillium Web', sans-serif;
+	background: var(--background);
+	padding-bottom: 50px;
+}
+
+h1{
+	color: var(--text-color);
+	font-size:5em;
+	text-align:center;
+	margin: 0 auto;
+	padding-bottom: 0;
+	
+}
+
+button{
+	background-color: var(--main-color);
+	font-size: 20px;
+	color: var(--text-color);
+	display: inline-block;
+  	margin: 0 15px 0 0;
+  	padding-left: 15px;
+  	padding-right: 15px;
+  	line-height: 1.8;
+  	appearance: none;
+  	box-shadow: none;
+  	border-radius: 15px;
+  	border: none;
+}
+
+/*No ugly blue outline when clicked*/
+button:focus {
+  outline: none; 
+}
+select:focus {
+  outline: none; 
+}
+
+select {
+   -webkit-appearance: none; 
+   -moz-appearance: none;
+   /*appearance: none; */
+   background-color: var(--background);
+	font-size: 20px;
+	color: var(--text-color);
+	margin: 0 15px 0 0;
+	padding-left: 15px;
+  	padding-right: 15px;
+  	line-height: 1.8;
+  	text-align:center;
+  	margin:auto auto;
+  	border-radius: 15px;
+  	border-color:var(--text-color);
+  	border-width: 3px;
+  	display: inline-block;
+}
+
+.emph{
+	color: var(--main-color)
+}
+
+.graph-axis path,line{
+	stroke:var(--text-color);
+}
+
+#buttons{
+	text-align:center;
+	margin: auto auto;
+	padding: 0 0 0 0;
+}
+
+#selects{
+	text-align:center;
+	margin-bottom:10px;
+	margin-left:auto;
+	margin-right:auto;
+	padding-bottom:50px;
+	
+}
