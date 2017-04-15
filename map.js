@@ -12,6 +12,7 @@ var bubblemap = function(){
     // move/change this later when we need to show actual info
     var hovertool = d3.select("body")
     .append("div")
+    .attr('class', function () { return "tooltip"; })
     .style("position", "absolute")
     .style("z-index", "10")
     .style("visibility", "hidden");
@@ -35,8 +36,17 @@ var bubblemap = function(){
       .on("end", dragended))
     .on("click", (d) => console.log(d))
     .on("mouseover",function(){return hovertool.style("visibility", "visible");})
-    .on("mousemove", function(d){return hovertool.style("top",(d3.event.pageY+10)+"px")
-      .style("left",(d3.event.pageX+10)+"px").text(d.id);})
+    .on("mousemove", function(d){
+      
+
+      var res = data.filter(function(obj) {
+        return obj.STATE == d.id;
+      });
+
+      return hovertool.style("top",(d3.event.pageY+10)+"px")
+      .style("left",(d3.event.pageX+10)+"px")
+      .text(res[0].STNAME);
+      })
     .on("mouseout", function(){return hovertool.style("visibility", "hidden");});
 
     simulation.nodes(nodedata).on("tick", on_tick);
@@ -63,6 +73,14 @@ var bubblemap = function(){
       });
     }
 
+    return bm;
+  }
+
+
+  /* sets the map's data*/
+  bm.data = function(statedata){
+    if(!statedata) return data;
+    data = statedata;
     return bm;
   }
 

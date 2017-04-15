@@ -2,7 +2,7 @@
 
 :root{
 	/*Can manipulate it in js by:
-	document.body.style.setProperty('--main-color',"#6c0")*/
+	document.documentElement.style.setProperty('--main-color',"#6c0")*/
     --main-color:#73caff;
     --text-color:#ffffff;
     --background:#3b4951;
@@ -17,6 +17,7 @@ svg {
 }
 
 text { fill: var(--text-color);; }
+
 
 body{
 	font-family:'Titillium Web', sans-serif;
@@ -81,6 +82,13 @@ select {
 
 .graph-axis path,line{
 	stroke:var(--text-color);
+}
+
+.tooltip{
+	color:var(--text-color);
+	background-color:rgba(0,0,0,0.8);
+	padding-left:15px;
+	padding-right:15px;
 }
 
 #buttons{

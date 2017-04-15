@@ -16,7 +16,7 @@ d3.queue()
     if (err) throw err;
     var svg = d3.select("#statesmap").attr("width", 1000).attr("height", 800);
     
-    map = bubblemap().svg(svg).topology(us)();
+    map = bubblemap().svg(svg).topology(us).data(pop)();
     
     state = new State(svg, map, pop);
 

@@ -181,7 +181,7 @@ function State(svg, map, data) {
         this.svg.append("text")
             .attr("class", "graph-axis")
             .attr("transform", "rotate(-90)")
-            .attr("y", width * 0.01)
+            .attr("y", width * 0.01+15)
             .attr("x", 0 - height/2)
             .style("text-anchor", "middle")
             .text(this.compared_to)
