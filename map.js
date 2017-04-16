@@ -81,7 +81,7 @@ var bubblemap = function(){
           h + " 0," + h + " 0,0 Z";
     }
 
-    // quick tool for initial hovel label
+    // quick tool for initial hover label
     // move/change this later when we need to show actual info
     hovertool = {
       width: 120,
@@ -107,6 +107,10 @@ var bubblemap = function(){
     hovertool.bodytext = hovertool.body.append("text")
     .attr("x", 10)
     .attr("y", 50);
+
+    hovertool.bodytext2 = hovertool.body.append("text")
+    .attr("x", 10)
+    .attr("y", 70);
     
     function updateHover(d){
       var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
@@ -123,6 +127,7 @@ var bubblemap = function(){
       } 
       hovertool.title.text(d.name);
       hovertool.bodytext.text(d.tooltip);
+      hovertool.bodytext2.text(d.tooltip2);
     }
 
     return bm;

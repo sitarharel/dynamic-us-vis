@@ -6,13 +6,14 @@
     --main-color:#73caff;
     --text-color:#ffffff;
     --background:#3b4951;
+    --disable-color:#727272;
 }
 svg {
 		text-align: center;
         display: block;
         margin: auto auto;  
         stroke: var(--text-color);
-        stroke-width:1px;
+        /*stroke-width:1px;*/
         /*border: 1px solid red;*/
 }
 
@@ -22,21 +23,24 @@ text { fill: var(--text-color);; }
 body{
 	font-family:'Titillium Web', sans-serif;
 	background: var(--background);
-	padding-bottom: 50px;
+	padding-bottom: 20px;
 }
 
 h1{
 	color: var(--text-color);
-	font-size:5em;
+	font-size:3em;
 	text-align:center;
-	margin: 0 auto;
+	margin-top:0;
+	margin-bottom:0;
 	padding-bottom: 0;
+	padding-top:0;
+	/*border: 1px solid blue;*/
 	
 }
 
 button{
 	background-color: var(--main-color);
-	font-size: 20px;
+	font-size: 14px;
 	color: var(--text-color);
 	display: inline-block;
   	margin: 0 15px 0 0;
@@ -47,6 +51,7 @@ button{
   	box-shadow: none;
   	border-radius: 15px;
   	border: none;
+  	margin-bottom:5px; /*spacing when you shrink window size*/
 }
 
 /*No ugly blue outline when clicked*/
@@ -62,7 +67,7 @@ select {
    -moz-appearance: none;
    /*appearance: none; */
    background-color: var(--background);
-	font-size: 20px;
+	font-size: 14px;
 	color: var(--text-color);
 	margin: 0 15px 0 0;
 	padding-left: 15px;
@@ -74,6 +79,15 @@ select {
   	border-color:var(--text-color);
   	border-width: 3px;
   	display: inline-block;
+  	margin-bottom:5px;
+}
+
+.bodytext {
+	/*color:var(--text-color);*/
+	color:red;
+	background-color:rgba(0,0,0,0.8);
+	padding-left:15px;
+	padding-right:15px;
 }
 
 .emph{
@@ -84,17 +98,11 @@ select {
 	stroke:var(--text-color);
 }
 
-.tooltip{
-	color:var(--text-color);
-	background-color:rgba(0,0,0,0.8);
-	padding-left:15px;
-	padding-right:15px;
-}
 
 #buttons{
 	text-align:center;
-	margin: auto auto;
-	padding: 0 0 0 0;
+	margin-left: auto;
+	margin-right:auto;
 }
 
 #selects{
@@ -102,6 +110,7 @@ select {
 	margin-bottom:10px;
 	margin-left:auto;
 	margin-right:auto;
-	padding-bottom:50px;
+	/*padding-bottom:50px;*/
 	
 }
+

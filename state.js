@@ -40,7 +40,9 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column];
+                d.tooltip2 = ""},
             "tween_duration": 1000
         },
         "circle": {
@@ -53,7 +55,9 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column];
+                d.tooltip2 = ""},
             "tween_duration": 300
         },
         "layout": {
@@ -66,7 +70,9 @@ function State(svg, map, data, width, height) {
                 {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; 
+                d.tooltip = cleanData[d.id][this.column];
+                d.tooltip2 = ""},
             "tween_duration": 500
         },
         "graph": {
@@ -79,7 +85,9 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column];
+                d.tooltip2 = cleanData[d.id][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -92,7 +100,9 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column];
+                d.tooltip2 = cleanData[d.id][this.compared_to]},
             "tween_duration": 500
         },
     }
@@ -101,6 +111,8 @@ function State(svg, map, data, width, height) {
     this.compared_to = "STARBUCKS";
     this.current_state = "default";
     this.map_options = state_mapping[this.current_state];
+   
+
 
     var columnData = {};
     var comparedToData = {};
