@@ -64,8 +64,8 @@ var bubblemap = function(){
 
     function generatesHTPaths(ht){
       var arrow_offset = ht.xoffset, 
-        arrow_w = ht.width/8, 
-        arrow_h = ht.width/5;
+        arrow_w = ht.width/20, 
+        arrow_h = ht.width/20;
         var w = ht.width, h = ht.height, 
           arrow_r_x = (arrow_offset + arrow_w),
           arrow_l_x = (arrow_offset - arrow_w),
@@ -81,16 +81,19 @@ var bubblemap = function(){
     // quick tool for initial hovel label
     // move/change this later when we need to show actual info
     hovertool = {
-      width: 120,
-      height: 150,
-      xoffset: 60,
-      yoffset: 175
+      width: 150,
+      height: 75,
+      xoffset: 75,
+      yoffset: 100
     };
 
     generatesHTPaths(hovertool);
 
     hovertool.body = svg.append("g")
-    .style("fill", "#3b4951")
+    .style("fill", "var(--background)")
+    .style("opacity", 0.95)
+    .style("stroke", "var(--main-color)")
+    .style("stroke-width", 0.5)
     .style("visibility", "hidden");
     
     hovertool.frame = hovertool.body.append("path")
@@ -102,7 +105,9 @@ var bubblemap = function(){
     .attr("y", 20);
 
     hovertool.bodytext = hovertool.body.append("text")
-    .attr("x", 10)
+    .style("stroke", "none")
+    .style("text-anchor", "middle")
+    .attr("x", hovertool.width / 2)
     .attr("y", 50);
     
     function updateHover(d){

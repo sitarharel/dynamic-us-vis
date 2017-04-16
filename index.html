@@ -7,19 +7,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+    <div id="side-menu" style="max-width: 375px; position: absolute; right: 0; top: 200px; background:rgba(255,255,255, 0.9); border-top-left-radius: 10px; border-bottom-left-radius: 10px; padding: 20px">
+        <div id="mini-menu" style="display: none">
+            <p style="font-size:12px; text-align: right; cursor: pointer; text-decoration: underline;" onclick="d3.select('#menu').style('display', 'block'); d3.select('#mini-menu').style('display', 'none');">SHOW MENU</p>
+        </div>
+        <div id="menu">
+            <p style="font-size:12px; text-align: right; cursor: pointer; text-decoration: underline;" onclick="d3.select('#menu').style('display', 'none'); d3.select('#mini-menu').style('display', 'block');">HIDE MENU</p>
+            <div class="tab_button active" id="STATE_button">Choropleth</div>
+            <div class="tab_button" id="CIRCLE_button">Area</div>
+            <div class="tab_button" id="LAYOUT_button">Sorted</div>
+            <div class="tab_button" id="GRAPH_button">Graph</div>
+            <div class="tab_content">
+                <div id="dataset">
+                    <p>SELECT A DATASET <span class="graph-dataset">FOR X-AXIS</span></p>
+                    <select id="x_axis"></select>
+                    <p class="graph-dataset" style="margin-top: 1em; margin-bottom: 1em">SELECT A DATASET FOR Y-AXIS</p>
+                    <select class="graph-dataset" id="y_axis"></select>
+                </div>
+
+                <div id="color_palette">
+                    <p>SELECT A COLOR</p>
+                </div>
+
+                <div id="sort_order">
+                    <p>SORT DATA</p>
+                    <select onchange="state.set_map_state(state.current_state)">
+                        <option>DESCENDING</option>
+                        <option>ASCENDING</option>
+                    </select>
+                </div>
+
+                <div id="point_shape">
+                    <p>SELECT POINT SHAPE</p>
+                    <input type="radio" name="point-shape" value="graph" checked onclick="set_graph_type()">State<br>
+                    <input type="radio" name="point-shape" value="graph_circle" onclick="set_graph_type()">Circle
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h1>The United <span class="emph">States</span> of America</h1>
     <svg id="statesmap"></svg>
-    <div id="selects">
-        <select id="x_axis"></select>
-        <select id="y_axis"></select>
-    </div>
-    <div id="buttons">
-        <button id="STATE_button">COLOR MAP</button>
-        <button id="CIRCLE_button">CIRCLE MAP</button>
-        <button id="LAYOUT_button">SORTED</button>
-        <button id="GRAPH_button">GRAPH</button>
-        <button id="GRAPH_CIRCLE_button">CIRCLE GRAPH</button>
-    </div>
+    
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <script type="text/javascript" src="map.js"></script>

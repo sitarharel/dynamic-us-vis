@@ -4,8 +4,8 @@
 	/*Can manipulate it in js by:
 	document.body.style.setProperty('--main-color',"#6c0")*/
     --main-color:#73caff;
-    --text-color:#ffffff;
-    --background:#3b4951;
+    --text-color:#3b4951;
+    --background:#ffffff;
 }
 svg {
 		text-align: center;
@@ -33,19 +33,25 @@ h1{
 	
 }
 
-button{
-	background-color: var(--main-color);
+.tab_button{
 	font-size: 20px;
 	color: var(--text-color);
+	background: var(--background-color);
 	display: inline-block;
-  	margin: 0 15px 0 0;
   	padding-left: 15px;
   	padding-right: 15px;
   	line-height: 1.8;
   	appearance: none;
   	box-shadow: none;
-  	border-radius: 15px;
-  	border: none;
+  	cursor: pointer;
+}
+
+.tab_button:hover{
+	border-bottom: 2px solid var(--main-color);
+}
+
+.tab_button.active{
+	border-bottom: 2px solid var(--main-color);
 }
 
 /*No ugly blue outline when clicked*/
@@ -57,22 +63,28 @@ select:focus {
 }
 
 select {
-   -webkit-appearance: none; 
-   -moz-appearance: none;
+/*   -webkit-appearance: none; 
+   -moz-appearance: none;*/
    /*appearance: none; */
    background-color: var(--background);
 	font-size: 20px;
 	color: var(--text-color);
 	margin: 0 15px 0 0;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	padding-left: 15px;
   	padding-right: 15px;
   	line-height: 1.8;
   	text-align:center;
   	margin:auto auto;
-  	border-radius: 15px;
+  	/*border-radius: 15px;*/
   	border-color:var(--text-color);
-  	border-width: 3px;
+  	border-top: none;
+  	border-left: none;
+  	border-right: none;
+  	border-width: 2px;
   	display: inline-block;
+	font-family:'Titillium Web', sans-serif;
 }
 
 .emph{
@@ -89,11 +101,22 @@ select {
 	padding: 0 0 0 0;
 }
 
-#selects{
-	text-align:center;
+.tab_content{
 	margin-bottom:10px;
 	margin-left:auto;
 	margin-right:auto;
-	padding-bottom:50px;
-	
+	padding:20px;
 }
+
+.color {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	border: 1px solid transparent;
+}
+
+.color:hover, .color.active {
+	border: 1px solid white;
+	opacity: 0.8;
+}
+
