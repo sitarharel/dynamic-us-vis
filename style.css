@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web');
+
+:root{
+	/*Can manipulate it in js by:
+	document.body.style.setProperty('--main-color',"#6c0")*/
+    --main-color:#73caff;
+    --text-color:#3b4951;
+    --background:#ffffff;
+}
+svg {
+		text-align: center;
+        display: block;
+        margin: auto auto;  
+        stroke: var(--text-color);
+        stroke-width:1px;
+        /*border: 1px solid red;*/
+}
+
+text { fill: var(--text-color);; }
+
+body{
+	font-family:'Titillium Web', sans-serif;
+	background: var(--background);
+	padding-bottom: 50px;
+}
+
+h1{
+	color: var(--text-color);
+	font-size:5em;
+	text-align:center;
+	margin: 0 auto;
+	padding-bottom: 0;
+	
+}
+
+.tab_button{
+	font-size: 20px;
+	color: var(--text-color);
+	background: var(--background-color);
+	display: inline-block;
+  	padding-left: 15px;
+  	padding-right: 15px;
+  	line-height: 1.8;
+  	appearance: none;
+  	box-shadow: none;
+  	cursor: pointer;
+}
+
+.tab_button:hover{
+	border-bottom: 2px solid var(--main-color);
+}
+
+.tab_button.active{
+	border-bottom: 2px solid var(--main-color);
+}
+
+/*No ugly blue outline when clicked*/
+button:focus {
+  outline: none; 
+}
+select:focus {
+  outline: none; 
+}
+
+select {
+/*   -webkit-appearance: none; 
+   -moz-appearance: none;*/
+   /*appearance: none; */
+   background-color: var(--background);
+	font-size: 20px;
+	color: var(--text-color);
+	margin: 0 15px 0 0;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 15px;
+  	padding-right: 15px;
+  	line-height: 1.8;
+  	text-align:center;
+  	margin:auto auto;
+  	/*border-radius: 15px;*/
+  	border-color:var(--text-color);
+  	border-top: none;
+  	border-left: none;
+  	border-right: none;
+  	border-width: 2px;
+  	display: inline-block;
+	font-family:'Titillium Web', sans-serif;
+}
+
+.emph{
+	color: var(--main-color)
+}
+
+.graph-axis path,line{
+	stroke:var(--text-color);
+}
+
+#buttons{
+	text-align:center;
+	margin: auto auto;
+	padding: 0 0 0 0;
+}
+
+.tab_content{
+	margin-bottom:10px;
+	margin-left:auto;
+	margin-right:auto;
+	padding:20px;
+}
+
+.color {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	border: 1px solid transparent;
+}
+
+.color:hover, .color.active {
+	border: 1px solid white;
+	opacity: 0.8;
+}
+
