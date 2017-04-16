@@ -10,20 +10,20 @@ function State(svg, map, data, width, height) {
     height = height ? height : +svg.attr("height");
     var horizontal_offset = (+svg.attr("width") - width)/2;
     var vertical_offset = (+svg.attr("height") - height)/2;
-    var locationColumns = 9;
-    var locationRows = 7;
+    var locationColumns = 6;
+    var locationRows = 9;
     var locationCoordinates = [];
     // Break the svg down into squares with locationColumns columns and locationRows rows
-    for(var y = height * 0.1; y < height - height * 0.1; y += (height - height * 0.1) / locationRows) {
-        for(var x = width * 0.1; x < width - width * 0.1; x += (width - width * 0.1) / locationColumns) {
+    for(var y = height * 0.1; y <= height * 0.9; y += height * 0.9 / locationRows) {
+        for(var x = width * 0.1; x <= width * 0.9; x += width * 0.9 / locationColumns) {
             locationCoordinates.push([horizontal_offset + x, vertical_offset + y]);
         }
     }
     var locationScale = function(d) { return locationCoordinates[d]; }
     var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
-    var graphXScale = d3.scaleLinear().range([width * 0.1, width - width * 0.1]);
-    var graphYScale = d3.scaleLinear().range([height - height * 0.1, height * 0.1,]);
+    var graphXScale = d3.scaleLinear().range([width * 0.1, width * 0.9]);
+    var graphYScale = d3.scaleLinear().range([height * 0.9, height * 0.1]);
 
     // this should definitely be temporary.
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
@@ -61,7 +61,7 @@ function State(svg, map, data, width, height) {
             "shape_duration": 500,
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {attr: "area", f: (d) => width * 4},
+                {attr: "area", f: (d) => width * 4 },
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
@@ -100,6 +100,7 @@ function State(svg, map, data, width, height) {
     this.column = "CENSUS2010POP";
     this.compared_to = "STARBUCKS";
     this.current_state = "default";
+    this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
     var columnData = {};
@@ -107,6 +108,7 @@ function State(svg, map, data, width, height) {
 
     this.set_map_state = function(state_name, options) {
         // Set the current state
+        this.previous_state = this.current_state;
         this.current_state = state_name;
 
         // Change domains to reflect data changes
@@ -117,6 +119,9 @@ function State(svg, map, data, width, height) {
         var stateOptions = state_mapping[state_name] || state_mapping["default"];
         stateOptions = Object.assign(stateOptions, options || {});
         this.map_options = stateOptions;
+
+        // Update scale
+        this.update_scale();
 
         // Transform the map based on options given
         this.map.shape(stateOptions.shape, stateOptions.shape_duration)
@@ -245,7 +250,54 @@ function State(svg, map, data, width, height) {
             .text(this.compared_to)
     }
 
+    this.create_scale = function() {
+        var legend = svg.selectAll("g.legend")
+        .data([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+        .enter().append("g")
+        .attr("class", "legend");
+
+        var ls_w = 20, ls_h = 20;
+
+        legend.append("rect")
+        .attr("x", 50)
+        .attr("y", function(d, i){ return height - (i*ls_h) - 2*ls_h - 350;})
+        .attr("width", ls_w)
+        .attr("height", ls_h)
+        .style("fill", function(d, i) { return color; })
+        .style("stroke", "none")
+        .style("opacity", function(d) { return d; });
+
+        legend.append("text")
+        .attr("class", "legendLabel")
+        .attr("x", 80)
+        .attr("y", function(d, i){ return height - (i*ls_h) - ls_h - 4 - 350;})
+        .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); });
+    }
+
+    this.update_scale = function() {
+        if (this.current_state == "default") {
+            svg.selectAll("g.legend")
+            .transition()
+            .duration(500)
+            .style("display", "block")
+
+            svg.selectAll("g.legend rect")
+            .transition()
+            .duration(this.previous_state == "default" ? this.map_options.tween_duration : 0)
+            .style("fill", function(d){ return color;});
+
+            svg.selectAll(".legendLabel")
+            .text(function(d){ return d3.format(",.2f")(opacityScale.invert(d)); })
+        } else {
+            svg.selectAll("g.legend")
+            .transition()
+            .duration(500)
+            .style("display", "none")
+        }
+    }
+
     // Initially set the data for the column
     this.set_data(this.column);
     this.set_compared_to_data(this.compared_to);
+    this.create_scale();
 }
