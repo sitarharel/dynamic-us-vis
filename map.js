@@ -97,7 +97,7 @@ var bubblemap = function(){
     .style("visibility", "hidden");
     
     hovertool.frame = hovertool.body.append("path")
-    .attr("d", hovertool.tpath)
+    .attr("d", hovertool.tpath);
 
     hovertool.title = hovertool.body.append("text").attr("class","httitle")
     .style("text-anchor", "middle")
@@ -145,13 +145,6 @@ var bubblemap = function(){
     return bm;
   }
 
-
-  /* sets the map's data*/
-  bm.data = function(statedata){
-    if(!statedata) return data;
-    data = statedata;
-    return bm;
-  }
 
   /* sets the map's topology to be topo - should be topojson formatted US states and counties
    * sets the geo projection to be proj (defaults to Albers USA) */

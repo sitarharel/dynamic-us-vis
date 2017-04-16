@@ -5,9 +5,12 @@ var state_button = d3.select("#STATE_button");
 var circle_button = d3.select("#CIRCLE_button");
 var layout_button = d3.select("#LAYOUT_button");
 var graph_button = d3.select("#GRAPH_button");
+var info_button = d3.select("#INFO_button");
 var graph_circle_button = d3.select("#GRAPH_CIRCLE_button");
 var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
+var info_box = d3.select("#info");
+
 
 
 d3.queue()
@@ -18,9 +21,9 @@ d3.queue()
     if (err) throw err;
     var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
 
-    map = bubblemap().svg(svg, 1500, 800).topology(us)();
+    map = bubblemap().svg(svg, 1000, 800).topology(us)();
 
-    state = new State(svg, map, pop, units, 1500, 800);
+    state = new State(svg, map, pop, units, 1000, 800);
 
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
@@ -71,6 +74,12 @@ d3.queue()
       state.set_map_state("graph_circle");
       enable_axis();
     });
+
+    $("#INFO_button").click(function(){
+      $(this).toggleClass("active");
+      $("#info").slideToggle(500);
+    });
+
     map.onClick((d) => state.set_examine_state(d.id));
 
 });
@@ -90,3 +99,4 @@ function enable_axis(){
   .style("color",en)
   .style("border-color",en);
 }
+

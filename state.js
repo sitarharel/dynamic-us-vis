@@ -142,8 +142,10 @@ function State(svg, map, data, units, width, height) {
             .tween(stateOptions.tween, stateOptions.tween_duration)
             .forEach(stateOptions.forEach);
 
+        // Draw or remove axes as necessary
         if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
         else this.remove_axises();
+   
     }
 
     this.set_examine_state = function(id){
