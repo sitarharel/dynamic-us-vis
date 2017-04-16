@@ -27,7 +27,7 @@ var bubblemap = function(){
       .on("end", dragended))
 
     .on("click", click_handler)
-    .on("mouseover",function(){ hovertool.body.style("visibility", "visible") })
+    .on("mouseover",function(){ hovertool.body.style("visibility", "visible")})
     .on("mousemove", updateHover)
     .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
 
@@ -82,38 +82,52 @@ var bubblemap = function(){
     }
 
     // quick tool for initial hover label
-    // move/change this later when we need to show actual info
+    // 120,150,60,175
     hovertool = {
-      width: 120,
-      height: 150,
+      width: 200,
+      height: 100,
       xoffset: 60,
       yoffset: 175
     };
 
     generatesHTPaths(hovertool);
 
-    hovertool.body = svg.append("g")
+    hovertool.body = svg.append("g").attr("class","hovertool")
     .style("fill", "#3b4951")
     .style("visibility", "hidden");
     
     hovertool.frame = hovertool.body.append("path")
     .attr("d", hovertool.tpath)
 
-    hovertool.title = hovertool.body.append("text")
+    hovertool.title = hovertool.body.append("text").attr("class","httitle")
     .style("text-anchor", "middle")
     .attr("x", hovertool.width / 2)
     .attr("y", 20);
 
-    hovertool.bodytext = hovertool.body.append("text")
+    hovertool.bodytext = hovertool.body.append("text").attr("class","htentry")
     .attr("x", 10)
     .attr("y", 50);
 
-    hovertool.bodytext2 = hovertool.body.append("text")
+    hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
     .attr("x", 10)
     .attr("y", 70);
+
+    function mkBox(g, text1, text2, title) {
+      var dim1 = text1.node().getBBox();
+      var dim2 = text2.node().getBBox();
+      g.width = Math.max(dim1.width+30,dim2.width+30,120);
+      generatesHTPaths(g);
+      title.attr("x",g.width/2);
+    }
     
     function updateHover(d){
       var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
+      
+      hovertool.bodytext.text(d.tooltip);
+      hovertool.bodytext2.text(d.tooltip2);
+      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.title);
+      hovertool.title.text(d.name);
+
       if(y < hovertool.yoffset) {
         hovertool.is_bottom = true;
         hovertool.frame.attr("d", hovertool.bpath);
@@ -125,9 +139,7 @@ var bubblemap = function(){
         hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
           + "," + (y - hovertool.yoffset) + ")");
       } 
-      hovertool.title.text(d.name);
-      hovertool.bodytext.text(d.tooltip);
-      hovertool.bodytext2.text(d.tooltip2);
+      
     }
 
     return bm;

@@ -13,13 +13,14 @@ var select_y = d3.select("#y_axis");
 d3.queue()
 .defer(d3.json, "us.json")
 .defer(d3.csv, "statedata.csv")
-.await(function(err, us, pop){
+.defer(d3.csv,"units.csv")
+.await(function(err, us, pop, units){
     if (err) throw err;
     var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
 
     map = bubblemap().svg(svg, 1500, 800).topology(us)();
 
-    state = new State(svg, map, pop, 1500, 800);
+    state = new State(svg, map, pop, units, 1500, 800);
 
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
