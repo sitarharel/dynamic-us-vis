@@ -62,6 +62,6 @@ d3.queue()
     graph_circle_button.on("click", () => {
       state.set_map_state("graph_circle");
     });
-    map.onClick((d) => state.set_examine_state(d.id));
 
+    map.onClick((d) => state.set_examine_state(d.id));
 });

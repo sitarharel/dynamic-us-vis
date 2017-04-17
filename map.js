@@ -30,8 +30,10 @@ var bubblemap = function(){
     .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
 
     simulation.nodes(nodedata).on("tick", on_tick);
-    simulation.force("x_pos").strength((d) => 0.1);
-    simulation.force("y_pos").strength((d) => 0.1);
+    simulation.force("x_pos").strength((d) => 0.08);
+    simulation.force("y_pos").strength((d) => 0.08);
+    // simulation.alphaDecay(0.1);
+    simulation.velocityDecay(0.4);
     simulation.alpha(1).restart();
 
     // this gets called every tick. used to do force stuff but also for reactive updating
@@ -179,6 +181,7 @@ var bubblemap = function(){
 
   bm.shape = function(f, duration){
     node_vis.transition().duration(duration).attr("d", f);
+    simulation.alphaTarget(1).restart();
     return bm;
   }
 

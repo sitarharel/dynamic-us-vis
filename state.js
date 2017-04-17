@@ -129,6 +129,12 @@ function State(svg, map, data, width, height) {
     }
 
     this.set_examine_state = function(id){
+        // console.log(svg);
+        var datas = svg.append("g");
+        Object.keys(cleanData[id]).forEach((key) => {
+            console.log(key);
+        })
+        // (cleanData[id])
 
         this.map.shape((d) => d.state_shape, 500)
             .location((d) => { 
@@ -140,7 +146,7 @@ function State(svg, map, data, width, height) {
             }).tween([
                 {style: "opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => {
-                    if(d.id == id) return 70000;
+                    if(d.id == id) return 75000;
                     return 0;
                 }},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
