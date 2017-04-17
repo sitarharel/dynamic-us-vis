@@ -1,9 +1,10 @@
-function State(svg, map, data, width, height) {
+function State(svg, map, data, units, width, height) {
     this.svg = svg;
     this.map = map;
     this.data = data;
+    this.units = units;
 
-    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#7b46ff"];
     var color = colors[0];
 
     width = width ? width : +svg.attr("width");
@@ -20,6 +21,15 @@ function State(svg, map, data, width, height) {
         }
     }
     var locationScale = function(d) { return locationCoordinates[d]; }
+    // var spiralScale = function(rank){
+    //     d3.svg.line.radial()
+    //     var r = rank * 10 + 50;
+    //     var dist = 50*50*30
+    //     var sigma = 6 * dist * 2 * Math.PI * (rank/50)/(r*r);
+    //     return [horizontal_offset + width / 2 + Math.cos(sigma) * r, vertical_offset + height / 2 + Math.sin(sigma) * r];
+    // }
+
+    // arc = deg * r ^ 2 / 2
     var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width * 0.9]);
@@ -40,8 +50,12 @@ function State(svg, map, data, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
-            "tween_duration": 1000
+
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = ""},
+            "tween_duration": 500
+
         },
         "circle": {
             "shape": (d) => d.circle_path,
@@ -50,10 +64,13 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = ""},
             "tween_duration": 300
         },
         "layout": {
@@ -62,11 +79,14 @@ function State(svg, map, data, width, height) {
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
                 {attr: "area", f: (d) => width * 4 },
+                {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; 
+                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = ""},
             "tween_duration": 500
         },
         "graph": {
@@ -76,10 +96,13 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => width / 2 },
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -89,19 +112,24 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => 50},
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.tooltip = cleanData[d.id][this.column]},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
     }
 
-    this.column = "CENSUS2010POP";
+    this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
     this.current_state = "default";
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
+
+
 
     var columnData = {};
     var comparedToData = {};
@@ -129,8 +157,10 @@ function State(svg, map, data, width, height) {
             .tween(stateOptions.tween, stateOptions.tween_duration)
             .forEach(stateOptions.forEach);
 
+        // Draw or remove axes as necessary
         if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
         else this.remove_axises();
+   
     }
 
     this.set_examine_state = function(id){
@@ -154,6 +184,7 @@ function State(svg, map, data, width, height) {
                     if(d.id == id) return 75000;
                     return 0;
                 }},
+                {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
             ], 500)
@@ -201,8 +232,8 @@ function State(svg, map, data, width, height) {
 
         // Pick a color for this dataset
         var columns = new Set();
-        Object.keys(this.data[0]).forEach(function(d){ columns.add(d.replace(/[0-9]/g, ''))});
-        color = this.get_color(Array.from(columns).indexOf(column.replace(/[0-9]/g, '')));
+        Object.keys(this.data[0]).forEach(function(d){ columns.add(d)});
+        color = this.get_color(Array.from(columns).indexOf(column));
 
         // Transform map with new data
         this.set_map_state(this.current_state, options);
