@@ -27,9 +27,13 @@ var bubblemap = function(){
       .on("end", dragended))
 
     .on("click", click_handler)
-    .on("mouseover",function(){ hovertool.body.style("visibility", "visible")})
+    .on("mouseover",function(d){ 
+      hovertool = {width: 200,height: 100,xoffset: 60,yoffset: 175};
+      createHT(hovertool);
+      hovertool.body.style("visibility", "visible")})
     .on("mousemove", updateHover)
-    .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
+    .on("mouseout", function(d){ 
+      hovertool.body.style("visibility", "hidden")});
 
 
     simulation.nodes(nodedata).on("tick", on_tick);
@@ -63,6 +67,7 @@ var bubblemap = function(){
         if(key == "strokewidth") return;
         node_vis.style(key, d => d.style[key])
       });
+
     }
 
     function generatesHTPaths(ht){
@@ -116,27 +121,31 @@ var bubblemap = function(){
     };
 
     generatesHTPaths(hovertool);
+    createHT(hovertool);
 
-    hovertool.body = svg.append("g").attr("class","hovertool")
-    .style("fill", "#3b4951")
-    .style("visibility", "hidden");
+    function createHT(hovertool){
+      hovertool.body = svg.append("g").attr("class","hovertool")
+      .style("fill", "#3b4951")
+      .style("visibility", "hidden");
+      
+      hovertool.frame = hovertool.body.append("path")
+      .attr("d", hovertool.tpath)
+      .attr("stroke-width",'2px');
+
+      hovertool.title = hovertool.body.append("text").attr("class","httitle")
+      .style("text-anchor", "middle")
+      .attr("x", hovertool.width / 2)
+      .attr("y", 20);
+
+      hovertool.bodytext = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 50);
+
+      hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 70);
+    }
     
-    hovertool.frame = hovertool.body.append("path")
-    .attr("d", hovertool.tpath)
-    .attr("stroke-width",'2px');
-
-    hovertool.title = hovertool.body.append("text").attr("class","httitle")
-    .style("text-anchor", "middle")
-    .attr("x", hovertool.width / 2)
-    .attr("y", 20);
-
-    hovertool.bodytext = hovertool.body.append("text").attr("class","htentry")
-    .attr("x", 10)
-    .attr("y", 50);
-
-    hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
-    .attr("x", 10)
-    .attr("y", 70);
 
     function mkBox(g, text1, text2, title) {
       var dim1 = text1.node().getBBox();
@@ -148,7 +157,7 @@ var bubblemap = function(){
     
     function updateHover(d){
       var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
-      
+
       hovertool.bodytext.text(d.tooltip);
       hovertool.bodytext2.text(d.tooltip2);
       mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.title);
@@ -288,7 +297,9 @@ var bubblemap = function(){
         fill: "royalblue",
         stroke: "white",
         strokewidth: 0,
-        opacity: 1
+        opacity: 1,
+        strokeopacity:1,
+        fillopacity:1
       }
     }}).filter(d => d.x && d.id != 11);
   }
