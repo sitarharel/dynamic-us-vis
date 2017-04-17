@@ -44,7 +44,7 @@ function State(svg, map, data, width, height) {
             "shape_duration": 500,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "fill-opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
                 {attr: "area", f: (d) => d.origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
@@ -57,7 +57,7 @@ function State(svg, map, data, width, height) {
             "shape_duration": 200,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => 0.8},
+                {style: "fill-opacity", f: (d) => 0.8},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
@@ -74,7 +74,7 @@ function State(svg, map, data, width, height) {
                 {attr: "area", f: (d) => width * 4 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
-                {style: "opacity", f: (d) => 1}, 
+                {style: "fill-opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.tooltip = cleanData[d.id][this.column]},
@@ -85,7 +85,7 @@ function State(svg, map, data, width, height) {
             "shape_duration": 500,
             "location": (d) => { return [graphXScale(this.get_data(d.id)), graphYScale(this.get_compared_to_data(d.id))]; },
             "tween": [
-                {style: "opacity", f: (d) => 0.8}, 
+                {style: "fill-opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => width / 2 },
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
@@ -99,7 +99,7 @@ function State(svg, map, data, width, height) {
             "shape_duration": 500,
             "location": (d) => { return [graphXScale(this.get_data(d.id)), graphYScale(this.get_compared_to_data(d.id))]; },
             "tween": [
-                {style: "opacity", f: (d) => 0.8}, 
+                {style: "fill-opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => 50},
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
@@ -162,7 +162,7 @@ function State(svg, map, data, width, height) {
                 return [horizontal_offset + width/2 + Math.cos(sigma) * radius,
                     vertical_offset + height/2 + Math.sin(sigma) * radius]; 
             }).tween([
-                {style: "opacity", f: (d) => 0.8}, 
+                {style: "fill-opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => {
                     if(d.id == id) return 75000;
                     return 0;
@@ -285,7 +285,7 @@ function State(svg, map, data, width, height) {
         .attr("height", ls_h)
         .style("fill", function(d, i) { return color; })
         .style("stroke", "none")
-        .style("opacity", function(d) { return d; });
+        .style("fill-opacity", function(d) { return d; });
 
         legend.append("text")
         .attr("class", "legendLabel")

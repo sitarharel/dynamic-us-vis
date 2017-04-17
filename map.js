@@ -62,8 +62,7 @@ var bubblemap = function(){
       // Set the node style for every style attribute
       Object.keys(node_vis.datum().style).forEach((key) => {
         if(key == "stroke_width") return;
-        key = key.replace(/_/g, '-')
-        node_vis.style(key, d => d.style[key])
+        node_vis.style(key.replace(/_/g, '-'), d => d.style[key])
       });
     }
 
@@ -249,7 +248,7 @@ var bubblemap = function(){
         fill: "none",
         stroke: "white",
         stroke_width: 0,
-        opacity: 1
+        fill_opacity: 1
       }
     }}).filter(d => d.x && d.id != 11);
   }
