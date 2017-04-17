@@ -4,7 +4,7 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
-    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#7b46ff"];
+    var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
     var color = colors[0];
 
     width = width ? width : +svg.attr("width");
@@ -30,10 +30,10 @@ function State(svg, map, data, units, width, height) {
     // }
 
     // arc = deg * r ^ 2 / 2
-    var areaScale = d3.scaleLinear().range([2500, 12500]);
-    var opacityScale = d3.scaleLog().range([0.1, 0.9]);
-    var graphXScale = d3.scaleLinear().range([width * 0.1, width * 0.9]);
-    var graphYScale = d3.scaleLinear().range([height * 0.9, height * 0.1]);
+    var areaScale;
+    var opacityScale;
+    var graphXScale;
+    var graphYScale;
 
     // this should definitely be temporary.
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
@@ -45,9 +45,13 @@ function State(svg, map, data, units, width, height) {
             "shape_duration": 500,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => 1 },
                 {attr: "area", f: (d) => d.origin_area},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => {
+                    var c = d3.hsl(color.toString());
+                    c.l = opacityScale(this.get_data(d.id));
+                    return c;
+                } },
                 {style: "stroke-width", f: (d) => 0}
             ],
 
@@ -62,7 +66,7 @@ function State(svg, map, data, units, width, height) {
             "shape_duration": 200,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => 0.8},
+                {style: "opacity", f: (d) => 1},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
@@ -78,7 +82,7 @@ function State(svg, map, data, units, width, height) {
             "shape_duration": 500,
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {attr: "area", f: (d) => width * 4 },
+                {attr: "area", f: (d) => width * 2 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "opacity", f: (d) => 1}, 
@@ -125,7 +129,7 @@ function State(svg, map, data, units, width, height) {
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
-    this.current_state = "default";
+    this.current_state = "layout";
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
@@ -200,12 +204,24 @@ function State(svg, map, data, units, width, height) {
     this.set_domains = function() {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
-        opacityScale = d3.scaleLinear().range([0.1, 0.9]).domain(extent);
+        opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain(extent);
         graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(extent);
 
         if (this.current_state == "layout")
-            opacityScale = d3.scaleLinear().range([0.9,0.1]).domain([0, Object.values(columnData).length]);
+            opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain([0, Object.values(columnData).length]);
 
+    }
+
+    function sortStateByValue() {
+        var keys = [];
+        for(var key in columnData){
+            if(key != "NaN" && key != "11") keys.push(key); 
+        }
+        keys.sort(function(a,b){
+            if (columnData[a] < columnData[b]) return 1
+            else return -1;
+        });
+        return keys
     }
 
     this.get_data = function(state_fips) {
@@ -215,9 +231,7 @@ function State(svg, map, data, units, width, height) {
         }
 
         // If the state is layout, then get the ranking instead of the actual data
-        var keys = [];
-        for(var key in columnData) keys.push(key);
-        keys.sort(function(a,b){return columnData[b]-columnData[a]});
+        var keys = sortStateByValue();
         return keys.indexOf(String(state_fips));
     }
 
@@ -335,7 +349,7 @@ function State(svg, map, data, units, width, height) {
 
 
     this.update_scale = function() {
-        var data = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+        var data = [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8];
         if (this.current_state == "circle") {
             data = [12500, 10000, 7500, 5000, 2500];
         }
@@ -357,9 +371,13 @@ function State(svg, map, data, units, width, height) {
             .duration(function(d, i){ return 500 + 100 * i})
             .attr("width", ls_w)
             .attr("height", ls_h)
-            .style("fill", function(d, i) { return color; })
+            .style("fill", function(d, i) {
+                var c = d3.hsl(color.toString());
+                c.l = d;
+                return c.toString();
+            })
             .style("stroke", "none")
-            .style("opacity", function(d) { return d; });
+            .style("opacity", 1);
 
             legend.append("text")
             .attr("class", "legendLabel")
@@ -393,6 +411,22 @@ function State(svg, map, data, units, width, height) {
             .transition()
             .duration(function(d, i){ return 500 + 250 * i})
             .style("opacity", 1);
+        } else if (this.current_state == "layout") {
+            var keys = sortStateByValue();
+            var stateNames = {};
+            this.data.forEach(function(s){ stateNames[s.STATE] = s.STNAME; });
+
+            keys.forEach(function(d, i){
+                var loc = locationScale(i);
+
+                legend.append("text")
+                .attr("x", loc[0])
+                .attr("y", loc[1] + 50)
+                .text((i+1) + ". " + stateNames[d])
+                .style("stroke", "none")
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+            });
         }
     }
 
