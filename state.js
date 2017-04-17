@@ -45,9 +45,9 @@ function State(svg, map, data, units, width, height) {
             "shape_duration": 500,
             "location": (d) => d.geo_origin,
             "tween": [
-                {style: "opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
+                {style: "opacity", f: (d) => opacityScale(this.get_data(d.id)) },
                 {attr: "area", f: (d) => d.origin_area},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color },
                 {style: "stroke-width", f: (d) => 0}
             ],
 
@@ -76,7 +76,7 @@ function State(svg, map, data, units, width, height) {
         "layout": {
             "shape": (d) => d.state_shape,
             "shape_duration": 500,
-            "location": (d, i) => { return locationScale(this.get_data(d.id)) },
+            "location": (d, i) => { console.log(this.get_data(d.id) + " " + locationScale(this.get_data(d.id))); return locationScale(this.get_data(d.id)) },
             "tween": [
                 {attr: "area", f: (d) => width * 4 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
@@ -125,7 +125,7 @@ function State(svg, map, data, units, width, height) {
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
-    this.current_state = "default";
+    this.current_state = "layout";
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
@@ -216,8 +216,13 @@ function State(svg, map, data, units, width, height) {
 
         // If the state is layout, then get the ranking instead of the actual data
         var keys = [];
-        for(var key in columnData) keys.push(key);
-        keys.sort(function(a,b){return columnData[b]-columnData[a]});
+        for(var key in columnData){
+            if(key != "NaN" && key != "11") keys.push(key); 
+        }
+        keys.sort(function(a,b){
+            if (columnData[a] < columnData[b]) return 1
+            else return -1;
+        });
         return keys.indexOf(String(state_fips));
     }
 
