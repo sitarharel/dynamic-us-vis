@@ -1,51 +1,63 @@
 @import url('https://fonts.googleapis.com/css?family=Titillium+Web');
 
 :root{
-	/*Can manipulate it in js by:
-	document.body.style.setProperty('--main-color',"#6c0")*/
+  /*Can manipulate it in js by:
+  document.documentElement.style.setProperty('--main-color',"#6c0")*/
     --main-color:#73caff;
     --text-color:#ffffff;
     --background:#3b4951;
+    --disable-color:#727272;
 }
+
 svg {
-		text-align: center;
+    text-align: center;
         display: block;
         margin: auto auto;  
         stroke: var(--text-color);
-        stroke-width:1px;
+        /*stroke-width:1px;*/
         /*border: 1px solid red;*/
 }
 
-text { fill: var(--text-color);; }
-
-body{
-	font-family:'Titillium Web', sans-serif;
-	background: var(--background);
-	padding-bottom: 50px;
+svg text{
+  fill:var(--text-color);
+  stroke:var(--text-color);
 }
 
+body{
+  font-family:'Titillium Web', sans-serif;
+  background: var(--background);
+  color:var(--text-color);
+  padding-bottom: 20px;
+}
+
+
 h1{
-	color: var(--text-color);
-	font-size:5em;
-	text-align:center;
-	margin: 0 auto;
-	padding-bottom: 0;
-	
+  color: var(--text-color);
+  font-size:3em;
+  text-align:center;
+  margin-top:0;
+  margin-bottom:0;
+  padding-bottom: 0;
+  padding-top:0;
+  /*border: 1px solid blue;*/
+  
 }
 
 button{
-	background-color: var(--main-color);
-	font-size: 20px;
-	color: var(--text-color);
-	display: inline-block;
-  	margin: 0 15px 0 0;
-  	padding-left: 15px;
-  	padding-right: 15px;
-  	line-height: 1.8;
-  	appearance: none;
-  	box-shadow: none;
-  	border-radius: 15px;
-  	border: none;
+  background-color: var(--main-color);
+  font-size: 16px;
+  color: var(--text-color);
+  display: inline-block;
+    margin: 0 15px 0 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    line-height: 1.8;
+    appearance: none;
+    box-shadow: none;
+    border-radius: 15px;
+    border: none;
+    margin-bottom:5px; /*spacing when you shrink window size*/
+    transition: background 0.5s linear;
 }
 
 /*No ugly blue outline when clicked*/
@@ -61,39 +73,130 @@ select {
    -moz-appearance: none;
    /*appearance: none; */
    background-color: var(--background);
-	font-size: 20px;
-	color: var(--text-color);
-	margin: 0 15px 0 0;
-	padding-left: 15px;
-  	padding-right: 15px;
-  	line-height: 1.8;
-  	text-align:center;
-  	margin:auto auto;
-  	border-radius: 15px;
-  	border-color:var(--text-color);
-  	border-width: 3px;
-  	display: inline-block;
+  font-size: 16px;
+  color: var(--text-color);
+  margin: 0 15px 0 0;
+  padding-left: 15px;
+    padding-right: 15px;
+    line-height: 1.8;
+    text-align:center;
+    margin:auto auto;
+    border-radius: 15px;
+    border-color:var(--text-color);
+    border-width: 3px;
+    display: inline-block;
+    margin-bottom:5px;
+}
+
+.hovertool{
+  stroke:var(--text-color);
+  fill:var(--text-color);
+}
+
+.httitle{
+  stroke:var(--main-color);
+  fill:var(--main-color);
+}
+
+.htentry{
+  overflow:hidden;
 }
 
 .emph{
-	color: var(--main-color)
+  color: var(--main-color)
 }
 
 .graph-axis path,line{
-	stroke:var(--text-color);
+  stroke:var(--text-color);
+}
+
+/* Underline From Center. CREDIT: https://github.com/IanLunn/Hover*/
+.hvr-underline-from-center {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px transparent;
+  position: relative;
+  overflow: hidden;
+}
+.hvr-underline-from-center:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  right: 50%;
+  bottom: 0;
+  background: var(--text-color);
+  height: 4px;
+  -webkit-transition-property: left, right;
+  transition-property: left, right;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-timing-function: ease-out;
+  transition-timing-function: ease-out;
+}
+.hvr-underline-from-center:hover:before, .hvr-underline-from-center:focus:before, .hvr-underline-from-center:active:before {
+  left: 0;
+  right: 0;
+}
+
+.info_labels{
+  stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: dash 2s linear forwards;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 #buttons{
-	text-align:center;
-	margin: auto auto;
-	padding: 0 0 0 0;
+  text-align:center;
+  margin-left: auto;
+  margin-right:auto;
 }
 
 #selects{
-	text-align:center;
-	margin-bottom:10px;
-	margin-left:auto;
-	margin-right:auto;
-	padding-bottom:50px;
-	
+  text-align:center;
+  margin-bottom:10px;
+  margin-left:auto;
+  margin-right:auto;
+  /*padding-bottom:50px;*/  
 }
+
+#info {
+  text-align: justify;
+  margin-left:100px;
+  margin-right:100px;
+  font-size:1em;
+  padding-left:0;
+  padding-right:0;
+  display:none;
+}
+
+#INFO_button{
+  background-color: var(--main-color);
+  color: var(--text-color);
+  text-align:center;  
+  position:absolute;
+    top:20px;
+    left:20px;
+    padding-left: 12.5px;
+    padding-right: 12.5px;
+    line-height: default;
+    border-radius: 15px;
+}
+
+/*#INFO_button:focus{
+  color: var(--main-color);
+  background-color: var(--text-color);
+}*/
+
+#INFO_button:hover, #INFO_button.active {
+  color: var(--main-color);
+  background-color: var(--text-color);
+}
+
