@@ -141,6 +141,18 @@ select {
   right: 0;
 }
 
+.info_labels{
+  stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: dash 2s linear forwards;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 #buttons{
   text-align:center;
   margin-left: auto;

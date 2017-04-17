@@ -108,7 +108,7 @@ function State(svg, map, data, units, width, height) {
         },
     }
 
-    this.column = "CENSUS2010POP";
+    this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
     this.current_state = "default";
     this.previous_state = this.current_state;
