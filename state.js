@@ -256,54 +256,70 @@ function State(svg, map, data, width, height) {
             .text(this.compared_to)
     }
 
-    this.create_scale = function() {
+    this.update_scale = function() {
+        var data = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+        if (this.current_state == "circle") {
+            data = [12500, 10000, 7500, 5000, 2500];
+        }
+
         var legend = svg.selectAll("g.legend")
-        .data([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+        .remove()
+        .exit()
+        .data(data)
         .enter().append("g")
         .attr("class", "legend");
 
         var ls_w = 20, ls_h = 20;
-
-        legend.append("rect")
-        .attr("x", 50)
-        .attr("y", function(d, i){ return height - (i*ls_h) - 2*ls_h - 350;})
-        .attr("width", ls_w)
-        .attr("height", ls_h)
-        .style("fill", function(d, i) { return color; })
-        .style("stroke", "none")
-        .style("opacity", function(d) { return d; });
-
-        legend.append("text")
-        .attr("class", "legendLabel")
-        .attr("x", 80)
-        .attr("y", function(d, i){ return height - (i*ls_h) - ls_h - 4 - 350;})
-        .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); });
-    }
-
-    this.update_scale = function() {
+        var label_start = 250;
         if (this.current_state == "default") {
-            svg.selectAll("g.legend")
+            legend.append("rect")
+            .attr("x", 50)
+            .attr("y", function(d, i){ return label_start + i * ls_h;})
             .transition()
-            .duration(500)
-            .style("display", "block")
+            .duration(function(d, i){ return 500 + 100 * i})
+            .attr("width", ls_w)
+            .attr("height", ls_h)
+            .style("fill", function(d, i) { return color; })
+            .style("stroke", "none")
+            .style("opacity", function(d) { return d; });
 
-            svg.selectAll("g.legend rect")
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 80)
+            .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
+            .style("opacity", 0)
             .transition()
-            .duration(this.previous_state == "default" ? this.map_options.tween_duration : 0)
-            .style("fill", function(d){ return color;});
+            .duration(function(d, i){ return 500 + 100 * i})
+            .style("opacity", 1);
 
-            svg.selectAll(".legendLabel")
-            .text(function(d){ return d3.format(",.2f")(opacityScale.invert(d)); })
-        } else {
-            svg.selectAll("g.legend")
+        } else if (this.current_state == "circle") {
+            var prev_height = 0;
+            legend.append("circle")
+            .attr("cx", 70)
+            .attr("cy", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
+            .style("fill", function(d, i) { return color; })
+            .style("stroke", "white")
+            .style("stroke-width", "3px")
             .transition()
-            .duration(500)
-            .style("display", "none")
+            .duration(function(d, i){ return 750 + 100 * i})
+            .attr("r", function(d){ return Math.sqrt(d / Math.PI);})
+
+            prev_height = 0;
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 150)
+            .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
+            .style("opacity", 0)
+            .transition()
+            .duration(function(d, i){ return 500 + 250 * i})
+            .style("opacity", 1);
         }
     }
 
     // Initially set the data for the column
     this.set_data(this.column);
     this.set_compared_to_data(this.compared_to);
-    this.create_scale();
+    this.update_scale();
 }
