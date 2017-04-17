@@ -48,7 +48,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "opacity", f: (d) => 1 },
                 {attr: "area", f: (d) => d.origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => {
-                    var c = color;
+                    var c = d3.hsl(color.toString());
                     c.l = opacityScale(this.get_data(d.id));
                     return c;
                 } },
@@ -320,7 +320,7 @@ function State(svg, map, data, units, width, height) {
             .attr("width", ls_w)
             .attr("height", ls_h)
             .style("fill", function(d, i) {
-                var c = color;
+                var c = d3.hsl(color.toString());
                 c.l = d;
                 return c.toString();
             })
