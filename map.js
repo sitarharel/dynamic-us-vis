@@ -7,6 +7,7 @@ var bubblemap = function(){
     .force("x_pos", d3.forceX(d => d.root[0]))
     .force("y_pos", d3.forceY(d => d.root[1]))
 
+
     nodedata = gennodes(states);
 
     node = svg
@@ -24,10 +25,16 @@ var bubblemap = function(){
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
+
     .on("click", click_handler)
-    .on("mouseover",function(){ hovertool.body.style("visibility", "visible") })
+    .on("mouseover",function(d){ 
+      hovertool = {width: 200,height: 100,xoffset: 60,yoffset: 175};
+      createHT(hovertool);
+      hovertool.body.style("visibility", "visible")})
     .on("mousemove", updateHover)
-    .on("mouseout", function(){ hovertool.body.style("visibility", "hidden") });
+    .on("mouseout", function(d){ 
+      hovertool.body.style("visibility", "hidden")});
+
 
     simulation.nodes(nodedata).on("tick", on_tick);
     simulation.force("x_pos").strength((d) => 0.08);
@@ -62,6 +69,7 @@ var bubblemap = function(){
         if(key == "strokewidth") return;
         node_vis.style(key, d => d.style[key])
       });
+
     }
 
     function generatesHTPaths(ht){
@@ -73,42 +81,90 @@ var bubblemap = function(){
           arrow_l_x = (arrow_offset - arrow_w),
           arrow_m_x = (arrow_offset),
           arrow_m_y = (ht.height + arrow_h);
-        ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
-            (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
-        ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
-          h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
-          h + " 0," + h + " 0,0 Z";
+        // ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+        //     (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
+        // ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
+        //   h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+        //   h + " 0," + h + " 0,0 Z";
+        var rad = 15;
+        w1 = w-rad;
+        h1 = rad;
+        h2 = h-rad;
+        ht.bpath = "M"+rad+",0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+            (-arrow_h) + " " + arrow_r_x + ",0 " + 
+            w1 + ",0 " +
+            "A"+rad+","+rad+" 0 0,1 "+w+","+h1+
+            "L"+w+","+h2+
+            "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
+            "L"+rad+","+h+
+            "A"+rad+","+rad+" 0 0,1 "+0+","+h2+
+            "L0"+ "," + h1 + 
+            "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
+            " Z";
+        ht.tpath = "M"+rad+",0 L" + w1 + ",0 " + 
+        "A"+rad+","+rad+" 0 0,1 "+w+","+h1 +
+        "L"+ w + "," + h2 + 
+        "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
+        "L" + arrow_r_x + "," + h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+          h + " "+rad+"," + h + 
+        "A"+rad+","+rad+" 0 0,1 "+"0,"+h2+
+        "L0,"+rad+
+        "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
+          " Z";
     }
 
-    // quick tool for initial hovel label
-    // move/change this later when we need to show actual info
+    // quick tool for initial hover label
+    // 120,150,60,175
     hovertool = {
-      width: 120,
-      height: 150,
+      width: 200,
+      height: 100,
       xoffset: 60,
       yoffset: 175
     };
 
     generatesHTPaths(hovertool);
+    createHT(hovertool);
 
-    hovertool.body = svg.append("g")
-    .style("fill", "#3b4951")
-    .style("visibility", "hidden");
+    function createHT(hovertool){
+      hovertool.body = svg.append("g").attr("class","hovertool")
+      .style("fill", "#3b4951")
+      .style("visibility", "hidden");
+      
+      hovertool.frame = hovertool.body.append("path")
+      .attr("d", hovertool.tpath)
+      .attr("stroke-width",'2px');
+
+      hovertool.title = hovertool.body.append("text").attr("class","httitle")
+      .style("text-anchor", "middle")
+      .attr("x", hovertool.width / 2)
+      .attr("y", 20);
+
+      hovertool.bodytext = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 50);
+
+      hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 70);
+    }
     
-    hovertool.frame = hovertool.body.append("path")
-    .attr("d", hovertool.tpath)
 
-    hovertool.title = hovertool.body.append("text")
-    .style("text-anchor", "middle")
-    .attr("x", hovertool.width / 2)
-    .attr("y", 20);
-
-    hovertool.bodytext = hovertool.body.append("text")
-    .attr("x", 10)
-    .attr("y", 50);
+    function mkBox(g, text1, text2, title) {
+      var dim1 = text1.node().getBBox();
+      var dim2 = text2.node().getBBox();
+      g.width = Math.max(dim1.width+30,dim2.width+30,120);
+      generatesHTPaths(g);
+      title.attr("x",g.width/2);
+    }
     
     function updateHover(d){
       var x = d3.mouse(svg.node())[0], y = d3.mouse(svg.node())[1];
+
+      hovertool.bodytext.text(d.tooltip);
+      hovertool.bodytext2.text(d.tooltip2);
+      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.title);
+      hovertool.title.text(d.name);
+
       if(y < hovertool.yoffset) {
         hovertool.is_bottom = true;
         hovertool.frame.attr("d", hovertool.bpath);
@@ -120,12 +176,12 @@ var bubblemap = function(){
         hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
           + "," + (y - hovertool.yoffset) + ")");
       } 
-      hovertool.title.text(d.name);
-      hovertool.bodytext.text(d.tooltip);
+      
     }
 
     return bm;
   }
+
 
   /* sets the map's topology to be topo - should be topojson formatted US states and counties
    * sets the geo projection to be proj (defaults to Albers USA) */
@@ -244,7 +300,9 @@ var bubblemap = function(){
         fill: "royalblue",
         stroke: "white",
         strokewidth: 0,
-        opacity: 1
+        opacity: 1,
+        strokeopacity:1,
+        fillopacity:1
       }
     }}).filter(d => d.x && d.id != 11);
   }
