@@ -82,7 +82,7 @@ function State(svg, map, data, units, width, height) {
             "shape_duration": 500,
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
-                {attr: "area", f: (d) => width * 4 },
+                {attr: "area", f: (d) => width * 2 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "opacity", f: (d) => 1}, 
@@ -129,7 +129,7 @@ function State(svg, map, data, units, width, height) {
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
-    this.current_state = "default";
+    this.current_state = "layout";
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
@@ -212,13 +212,7 @@ function State(svg, map, data, units, width, height) {
 
     }
 
-    this.get_data = function(state_fips) {
-        // Look up data for set column for this state based on its fips code (d.id)
-        if (this.current_state != "layout"){
-            return columnData[+state_fips];
-        }
-
-        // If the state is layout, then get the ranking instead of the actual data
+    function sortStateByValue() {
         var keys = [];
         for(var key in columnData){
             if(key != "NaN" && key != "11") keys.push(key); 
@@ -227,6 +221,17 @@ function State(svg, map, data, units, width, height) {
             if (columnData[a] < columnData[b]) return 1
             else return -1;
         });
+        return keys
+    }
+
+    this.get_data = function(state_fips) {
+        // Look up data for set column for this state based on its fips code (d.id)
+        if (this.current_state != "layout"){
+            return columnData[+state_fips];
+        }
+
+        // If the state is layout, then get the ranking instead of the actual data
+        var keys = sortStateByValue();
         return keys.indexOf(String(state_fips));
     }
 
@@ -359,6 +364,22 @@ function State(svg, map, data, units, width, height) {
             .transition()
             .duration(function(d, i){ return 500 + 250 * i})
             .style("opacity", 1);
+        } else if (this.current_state == "layout") {
+            var keys = sortStateByValue();
+            var stateNames = {};
+            this.data.forEach(function(s){ stateNames[s.STATE] = s.STNAME; });
+
+            keys.forEach(function(d, i){
+                var loc = locationScale(i);
+
+                legend.append("text")
+                .attr("x", loc[0])
+                .attr("y", loc[1] + 50)
+                .text((i+1) + ". " + stateNames[d])
+                .style("stroke", "none")
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+            });
         }
     }
 
