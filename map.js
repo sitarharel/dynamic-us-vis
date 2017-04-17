@@ -74,11 +74,36 @@ var bubblemap = function(){
           arrow_l_x = (arrow_offset - arrow_w),
           arrow_m_x = (arrow_offset),
           arrow_m_y = (ht.height + arrow_h);
-        ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
-            (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
-        ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
-          h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
-          h + " 0," + h + " 0,0 Z";
+        // ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+        //     (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
+        // ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
+        //   h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+        //   h + " 0," + h + " 0,0 Z";
+        var rad = 15;
+        w1 = w-rad;
+        h1 = rad;
+        h2 = h-rad;
+        ht.bpath = "M"+rad+",0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
+            (-arrow_h) + " " + arrow_r_x + ",0 " + 
+            w1 + ",0 " +
+            "A"+rad+","+rad+" 0 0,1 "+w+","+h1+
+            "L"+w+","+h2+
+            "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
+            "L"+rad+","+h+
+            "A"+rad+","+rad+" 0 0,1 "+0+","+h2+
+            "L0"+ "," + h1 + 
+            "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
+            " Z";
+        ht.tpath = "M"+rad+",0 L" + w1 + ",0 " + 
+        "A"+rad+","+rad+" 0 0,1 "+w+","+h1 +
+        "L"+ w + "," + h2 + 
+        "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
+        "L" + arrow_r_x + "," + h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
+          h + " "+rad+"," + h + 
+        "A"+rad+","+rad+" 0 0,1 "+"0,"+h2+
+        "L0,"+rad+
+        "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
+          " Z";
     }
 
     // quick tool for initial hover label
@@ -97,7 +122,8 @@ var bubblemap = function(){
     .style("visibility", "hidden");
     
     hovertool.frame = hovertool.body.append("path")
-    .attr("d", hovertool.tpath);
+    .attr("d", hovertool.tpath)
+    .attr("stroke-width",'2px');
 
     hovertool.title = hovertool.body.append("text").attr("class","httitle")
     .style("text-anchor", "middle")
