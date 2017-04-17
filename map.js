@@ -328,7 +328,7 @@ var bubblemap = function(){
     // }
     // var len = coords.length;
     var len = ((pathGenerator(d) || "").match(/L|M/g) || []).length
-    console.log(d.id + ": " + len);
+    // console.log(d.id + ": " + len);
     var angleoffset = 2 * Math.PI / len;
     var angle = 0;
     var res = "M ";

@@ -141,10 +141,10 @@ select {
   right: 0;
 }
 
-.info_labels{
+.regression-line{
   stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
-    animation: dash 2s linear forwards;
+    animation: dash 1s linear forwards;
 }
 
 @keyframes dash {
@@ -171,10 +171,19 @@ select {
   text-align: justify;
   margin-left:100px;
   margin-right:100px;
-  font-size:1em;
+  font-size:16px;
   padding-left:0;
   padding-right:0;
-  display:none;
+  /*display:none;*/
+
+  /*try to change to pure js and css*/
+  max-height: 0px;
+  overflow:hidden;  
+  /*-webkit-transition: all 1000ms ease-in-out;
+  -moz-transition: all 1000ms ease-in-out;*/
+  transition: all 500ms ease-in-out;
+
+
 }
 
 #INFO_button{
@@ -190,13 +199,11 @@ select {
     border-radius: 15px;
 }
 
-/*#INFO_button:focus{
-  color: var(--main-color);
-  background-color: var(--text-color);
-}*/
 
 #INFO_button:hover, #INFO_button.active {
   color: var(--main-color);
   background-color: var(--text-color);
 }
+
+
 
