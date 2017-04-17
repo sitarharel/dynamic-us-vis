@@ -35,7 +35,7 @@ var bubblemap = function(){
     // simulation.alphaDecay(0.1);
     simulation.velocityDecay(0.4);
     simulation.alpha(1).restart();
-
+    setInterval(on_tick, 750);
     // this gets called every tick. used to do force stuff but also for reactive updating
     function on_tick() {
       simulation.force("collision").radius((d) => {return d.no_clip ? 0 : Math.sqrt(d.area/Math.PI) + 2})
@@ -44,14 +44,16 @@ var bubblemap = function(){
 
       // set the node's location. (node paths should be centered around d.geo_origin_area)
       node_vis.attr("transform", function(d) { 
-        var scale = Math.sqrt(d.area/d.geo_origin_area);
-        if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
+        var scale = Math.sqrt(d.area/d.origin_area);
+        // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
         return "translate(" + d.x + ", " + d.y + ") scale("+ scale +") translate(" + (-d.geo_origin[0]) + ", " + (-d.geo_origin[1]) + ")";
       })
     .style("stroke-width", function(d) { 
-        var scale = Math.sqrt(d.area/d.geo_origin_area);
-        if(d.bound_scale) scale = Math.sqrt(d.area/d.bound_origin_area);
-        return d.style.strokewidth / scale;
+        // if(d.style.stroke_width >= 2) console.log(d.name);
+        // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
+        // if(d.style.stroke_width - d.psw != 0) console.log(d.name + ": " + d.style.stroke_width - d.psw); 
+        d.psw = d.stroke_width;
+        return d.style.stroke_width / Math.sqrt(d.area/d.origin_area);
       });
 
       if(click_handler != node_vis.on("click"))
@@ -59,7 +61,7 @@ var bubblemap = function(){
 
       // Set the node style for every style attribute
       Object.keys(node_vis.datum().style).forEach((key) => {
-        if(key == "strokewidth") return;
+        if(key == "stroke_width") return;
         node_vis.style(key, d => d.style[key])
       });
     }
@@ -186,18 +188,19 @@ var bubblemap = function(){
   }
 
   bm.tween = function(attrs, duration){
+    simulation.alphaTarget(1).restart();
     if(!Array.isArray(attrs)) attrs = [attrs];
     var tween_func = function(d){
       return function(t){
         return attrs.forEach((a) => {
-          dataTween(d, a.f, a.style ? a.style.replace(/-/g, '') : a.attr, a.interpolator, a.style)(t);
+          dataTween(d, a.f, a.style ? a.style.replace(/-/g, '_') : a.attr, a.interpolator, a.style)(t);
         });
       }
     }
     node.enter() // change to node_vis
     .transition().duration(duration)
     .tween("datum", tween_func);
-    simulation.alphaTarget(1).restart();
+
     return bm;
   }
 
@@ -240,10 +243,11 @@ var bubblemap = function(){
       no_drag: false, // whether or not user should be able to interact with nodes
       state_shape: pathGenerator(d), // shape of the state
       origin_shape: d,
+      psw: 0,
       style: {
-        fill: "royalblue",
+        fill: "none",
         stroke: "white",
-        strokewidth: 0,
+        stroke_width: 0,
         opacity: 1
       }
     }}).filter(d => d.x && d.id != 11);

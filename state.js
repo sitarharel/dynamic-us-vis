@@ -20,6 +20,15 @@ function State(svg, map, data, width, height) {
         }
     }
     var locationScale = function(d) { return locationCoordinates[d]; }
+    // var spiralScale = function(rank){
+    //     d3.svg.line.radial()
+    //     var r = rank * 10 + 50;
+    //     var dist = 50*50*30
+    //     var sigma = 6 * dist * 2 * Math.PI * (rank/50)/(r*r);
+    //     return [horizontal_offset + width / 2 + Math.cos(sigma) * r, vertical_offset + height / 2 + Math.sin(sigma) * r];
+    // }
+
+    // arc = deg * r ^ 2 / 2
     var areaScale = d3.scaleLinear().range([2500, 12500]);
     var opacityScale = d3.scaleLog().range([0.1, 0.9]);
     var graphXScale = d3.scaleLinear().range([width * 0.1, width * 0.9]);
@@ -41,7 +50,7 @@ function State(svg, map, data, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false;},
-            "tween_duration": 1000
+            "tween_duration": 500
         },
         "circle": {
             "shape": (d) => d.circle_path,
@@ -50,6 +59,7 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
@@ -62,6 +72,7 @@ function State(svg, map, data, width, height) {
             "location": (d, i) => { return locationScale(this.get_data(d.id)) },
             "tween": [
                 {attr: "area", f: (d) => width * 4 },
+                {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
@@ -76,6 +87,7 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => width / 2 },
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
@@ -89,6 +101,7 @@ function State(svg, map, data, width, height) {
             "tween": [
                 {style: "opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => 50},
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
@@ -154,6 +167,7 @@ function State(svg, map, data, width, height) {
                     if(d.id == id) return 75000;
                     return 0;
                 }},
+                {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
             ], 500)
