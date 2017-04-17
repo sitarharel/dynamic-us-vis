@@ -9,7 +9,9 @@ var info_button = d3.select("#INFO_button");
 var graph_circle_button = d3.select("#GRAPH_CIRCLE_button");
 var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
-var info_box = d3.select("#info");
+// var info_box = d3.select("#info");
+// var info_box = document.getElementById("info");
+var info_box = document.getElementById('info'); 
 
 
 
@@ -75,14 +77,15 @@ d3.queue()
       enable_axis();
     });
 
+    // $("#INFO_button").click(function(){
+    //   $(this).toggleClass("active");
+    //   $("#info").slideToggle(500);
+    // });
 
-    $("#INFO_button").click(function(){
-      $(this).toggleClass("active");
-      $("#info").slideToggle(500);
-    });
+    info_button.on("click",maxHeightSlide);
 
     map.onClick((d) => state.set_examine_state(d.id));
-    map.onClick((d) => state.set_examine_state(d.id));
+
 });
 
 function disable_axis(){
@@ -92,6 +95,7 @@ function disable_axis(){
   .style("color",dis)
   .style("border-color",dis);
 }
+
 function enable_axis(){
   var htmlStyles = window.getComputedStyle(document.querySelector("html"));
   var en = htmlStyles.getPropertyValue("--text-color");
@@ -101,3 +105,11 @@ function enable_axis(){
   .style("border-color",en);
 }
 
+function maxHeightSlide() {
+    if(info_box.style.maxHeight !== "400px") {
+      info_box.style.maxHeight = "400px";
+      // info_button.className = "active";
+    } else {
+      info_box.style.maxHeight = "0px";
+    }
+} 

@@ -257,6 +257,7 @@ function State(svg, map, data, units, width, height) {
 
     this.remove_axises = function() {
         this.svg.selectAll(".graph-axis").remove();
+        this.svg.selectAll(".regression-line").remove();
     }
 
     this.draw_axises = function() {
@@ -285,7 +286,53 @@ function State(svg, map, data, units, width, height) {
             .attr("x", 0 - height/2 - vertical_offset)
             .style("text-anchor", "middle")
             .text(this.compared_to)
+
+
+        var params = this.lin_reg(this.data,this.column,this.compared_to);
+ 
+        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold
+            xrange = graphXScale.domain();
+
+            this.svg.append("line")
+            .attr("class","regression-line")
+            .attr("x1",graphXScale(xrange[0]))
+            .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
+            .attr("x2",graphXScale(xrange[1]))
+            .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
+            .style("stroke-width","2px");
+        }
     }
+
+    this.lin_reg = function(d,xvar,yvar){
+        // https://en.wikipedia.org/wiki/Simple_linear_regression
+        var datalength = d.length-1;
+        var xmean = 0;
+        var ymean = 0;
+        var xr = 0;
+        var yr = 0;
+        var yr2 = 0;
+        var term1 = 0;
+        var term2 = 0;
+        var pearson;
+        // means
+        for (var k=0; k<datalength; ++k){
+            xmean += (d[k][xvar])/datalength;
+            ymean += (d[k][yvar])/datalength;
+        }
+        // coefficients
+        for (var w=0; w<datalength; ++w){
+            xr = d[w][xvar] - xmean;
+            yr = d[w][yvar]- ymean;
+            yr2 += yr*yr;
+            term1 += xr*yr;
+            term2 += xr*xr;
+        }
+        pearson = term1/(Math.sqrt(term2)*Math.sqrt(yr2));
+        var fitted_slope = term1/term2;
+        var fitted_intercept = ymean - (fitted_slope*xmean);
+        return [fitted_slope,fitted_intercept,pearson];
+    }
+
 
     this.update_scale = function() {
         var data = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
