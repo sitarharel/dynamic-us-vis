@@ -47,7 +47,7 @@ function State(svg, map, data, units, width, height) {
             "tween": [
                 {style: "fill-opacity", f: (d) => { return opacityScale(this.get_data(d.id)); }},
                 {attr: "area", f: (d) => d.origin_area},
-                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
+                {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color },
                 {style: "stroke-width", f: (d) => 0}
             ],
 
@@ -76,7 +76,7 @@ function State(svg, map, data, units, width, height) {
         "layout": {
             "shape": (d) => d.state_shape,
             "shape_duration": 500,
-            "location": (d, i) => { return locationScale(this.get_data(d.id)) },
+            "location": (d, i) => { console.log(this.get_data(d.id) + " " + locationScale(this.get_data(d.id))); return locationScale(this.get_data(d.id)) },
             "tween": [
                 {attr: "area", f: (d) => width * 4 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
@@ -125,7 +125,7 @@ function State(svg, map, data, units, width, height) {
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
-    this.current_state = "default";
+    this.current_state = "layout";
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
@@ -216,8 +216,13 @@ function State(svg, map, data, units, width, height) {
 
         // If the state is layout, then get the ranking instead of the actual data
         var keys = [];
-        for(var key in columnData) keys.push(key);
-        keys.sort(function(a,b){return columnData[b]-columnData[a]});
+        for(var key in columnData){
+            if(key != "NaN" && key != "11") keys.push(key); 
+        }
+        keys.sort(function(a,b){
+            if (columnData[a] < columnData[b]) return 1
+            else return -1;
+        });
         return keys.indexOf(String(state_fips));
     }
 
@@ -287,54 +292,71 @@ function State(svg, map, data, units, width, height) {
             .text(this.compared_to)
     }
 
-    this.create_scale = function() {
+    this.update_scale = function() {
+        var data = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+        if (this.current_state == "circle") {
+            data = [12500, 10000, 7500, 5000, 2500];
+        }
+
         var legend = svg.selectAll("g.legend")
-        .data([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+        .remove()
+        .exit()
+        .data(data)
         .enter().append("g")
         .attr("class", "legend");
 
         var ls_w = 20, ls_h = 20;
-
-        legend.append("rect")
-        .attr("x", 50)
-        .attr("y", function(d, i){ return height - (i*ls_h) - 2*ls_h - 350;})
-        .attr("width", ls_w)
-        .attr("height", ls_h)
-        .style("fill", function(d, i) { return color; })
-        .style("stroke", "none")
-        .style("fill-opacity", function(d) { return d; });
-
-        legend.append("text")
-        .attr("class", "legendLabel")
-        .attr("x", 80)
-        .attr("y", function(d, i){ return height - (i*ls_h) - ls_h - 4 - 350;})
-        .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); });
-    }
-
-    this.update_scale = function() {
+        var label_start = 250;
         if (this.current_state == "default") {
-            svg.selectAll("g.legend")
+            legend.append("rect")
+            .attr("x", 50)
+            .attr("y", function(d, i){ return label_start + i * ls_h;})
+            .style("fill", "#3b4951")
             .transition()
-            .duration(500)
-            .style("display", "block")
+            .duration(function(d, i){ return 500 + 100 * i})
+            .attr("width", ls_w)
+            .attr("height", ls_h)
+            .style("fill", function(d, i) { return color; })
+            .style("stroke", "none")
+            .style("opacity", function(d) { return d; });
 
-            svg.selectAll("g.legend rect")
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 80)
+            .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
+            .style("opacity", 0)
             .transition()
-            .duration(this.previous_state == "default" ? this.map_options.tween_duration : 0)
-            .style("fill", function(d){ return color;});
+            .duration(function(d, i){ return 500 + 100 * i})
+            .style("opacity", 1);
 
-            svg.selectAll(".legendLabel")
-            .text(function(d){ return d3.format(",.2f")(opacityScale.invert(d)); })
-        } else {
-            svg.selectAll("g.legend")
+        } else if (this.current_state == "circle") {
+            var prev_height = 0;
+            legend.append("circle")
+            .attr("cx", 70)
+            .attr("cy", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
+            .style("fill", function(d, i) { return color; })
+            .style("stroke", "white")
+            .style("stroke-width", "3px")
             .transition()
-            .duration(500)
-            .style("display", "none")
+            .duration(function(d, i){ return 750 + 100 * i})
+            .attr("r", function(d){ return Math.sqrt(d / Math.PI);})
+
+            prev_height = 0;
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 150)
+            .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
+            .style("opacity", 0)
+            .transition()
+            .duration(function(d, i){ return 500 + 250 * i})
+            .style("opacity", 1);
         }
     }
 
     // Initially set the data for the column
     this.set_data(this.column);
     this.set_compared_to_data(this.compared_to);
-    this.create_scale();
+    this.update_scale();
 }

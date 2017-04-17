@@ -28,7 +28,7 @@ var bubblemap = function(){
 
     .on("click", click_handler)
     .on("mouseover",function(d){ 
-      // hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 145};
+      hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 125};
       createHT(hovertool);
       hovertool.body.style("visibility", "visible")})
     .on("mousemove", updateHover)
