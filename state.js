@@ -210,8 +210,8 @@ function State(svg, map, data, units, width, height) {
 
         // Pick a color for this dataset
         var columns = new Set();
-        Object.keys(this.data[0]).forEach(function(d){ columns.add(d.replace(/[0-9]/g, ''))});
-        color = this.get_color(Array.from(columns).indexOf(column.replace(/[0-9]/g, '')));
+        Object.keys(this.data[0]).forEach(function(d){ columns.add(d)});
+        color = this.get_color(Array.from(columns).indexOf(column));
 
         // Transform map with new data
         this.set_map_state(this.current_state, options);
