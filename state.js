@@ -133,8 +133,6 @@ function State(svg, map, data, units, width, height) {
     this.previous_state = this.current_state;
     this.map_options = state_mapping[this.current_state];
 
-
-
     var columnData = {};
     var comparedToData = {};
 

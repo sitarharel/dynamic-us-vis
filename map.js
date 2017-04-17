@@ -30,10 +30,15 @@ var bubblemap = function(){
     .on("mouseover",function(d){ 
       hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 125};
       createHT(hovertool);
-      hovertool.body.style("visibility", "visible")})
+      hovertool.body.style("visibility", "visible")
+      d.sw = d.style.stroke_width;
+      d.style.stroke_width = 2;
+    })
     .on("mousemove", updateHover)
     .on("mouseout", function(d){ 
-      hovertool.body.style("visibility", "hidden")});
+      d.style.stroke_width = d.sw;
+      hovertool.body.style("visibility", "hidden")
+    });
 
 
     simulation.nodes(nodedata).on("tick", on_tick);
