@@ -193,6 +193,7 @@ function State(svg, map, data, units, width, height) {
             .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true;});
 
         this.remove_axises();
+        this.remove_scale();
     }
 
     this.get_color = function(n) {
@@ -345,6 +346,11 @@ function State(svg, map, data, units, width, height) {
         return [fitted_slope,fitted_intercept,pearson];
     }
 
+    this.remove_scale = function() {
+        svg.selectAll("g.legend")
+        .remove()
+        .exit()
+    }
 
     this.update_scale = function() {
         var data = [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8];
