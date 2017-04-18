@@ -147,6 +147,13 @@ select {
     animation: dash 1s linear forwards;
 }
 
+.error-line{
+  stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation-delay: 2s;
+    animation: dash 6s linear forwards;
+}
+
 @keyframes dash {
   to {
     stroke-dashoffset: 0;

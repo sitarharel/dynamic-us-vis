@@ -305,6 +305,7 @@ function State(svg, map, data, units, width, height) {
     this.remove_axises = function() {
         this.svg.selectAll(".graph-axis").remove();
         this.svg.selectAll(".regression-line").remove();
+        this.svg.selectAll(".error-line").remove();
     }
 
     this.draw_axises = function() {
@@ -336,10 +337,12 @@ function State(svg, map, data, units, width, height) {
 
 
         var params = this.lin_reg(this.data,this.column,this.compared_to);
- 
+        var col = this.column;
+        var comp = this.compared_to;
+        var dat = this.data.slice(0,this.data.length-1);     
+
         if (Math.abs(params[2])>=0.6){ // pearson correlation threshold
             xrange = graphXScale.domain();
-
             this.svg.append("line")
             .attr("class","regression-line")
             .attr("x1",graphXScale(xrange[0]))
@@ -347,8 +350,22 @@ function State(svg, map, data, units, width, height) {
             .attr("x2",graphXScale(xrange[1]))
             .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
             .style("stroke-width","2px");
+
+            var errorlines = this.svg.selectAll(".error-line")
+            .data(dat)
+            .enter()
+            .append("line")
+            .attr("class","error-line")
+            .attr("x1",function(d){return graphXScale(d[col])})
+            .attr("y1",function(d){return graphYScale(params[1]+params[0]*d[col])})
+            .attr("x2",function(d){return graphXScale(d[col])})
+            .attr("y2",function(d){return graphYScale(d[comp])})
+            .style("opacity",0.5);           
         }
+
+
     }
+
 
     this.lin_reg = function(d,xvar,yvar){
         // https://en.wikipedia.org/wiki/Simple_linear_regression
