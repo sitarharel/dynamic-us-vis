@@ -25,18 +25,20 @@ var bubblemap = function(){
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-
-    .on("click", click_handler)
+    .on("click", (d) => {
+      d.sw = 0;
+      hovertool.body.style("visibility", "hidden")
+      click_handler(d);
+    })
     .on("mouseover",function(d){ 
-      hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 125};
+      hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
       createHT(hovertool);
       hovertool.body.style("visibility", "visible")
-      d.sw = d.style.stroke_width;
-      d.style.stroke_width = 2;
+      d.sw = 2;
     })
     .on("mousemove", updateHover)
     .on("mouseout", function(d){ 
-      d.style.stroke_width = d.sw;
+      d.sw = 0;
       hovertool.body.style("visibility", "hidden")
     });
 
@@ -64,7 +66,8 @@ var bubblemap = function(){
         // if(d.style.stroke_width >= 2) console.log(d.name);
         // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
         // if(d.style.stroke_width - d.psw != 0) console.log(d.name + ": " + d.style.stroke_width - d.psw); 
-        d.psw = d.stroke_width;
+        // d.psw = d.stroke_width;
+        if(d.sw) return d.sw / Math.sqrt(d.area/d.origin_area)
         return d.style.stroke_width / Math.sqrt(d.area/d.origin_area);
       });
 
@@ -82,8 +85,8 @@ var bubblemap = function(){
     function generatesHTPaths(ht){
       ht.xoffset = ht.width/2;
       var arrow_offset = ht.width/2, 
-        arrow_w = ht.width/10, 
-        arrow_h = ht.width/8;
+        arrow_w = ht.height/10, 
+        arrow_h = ht.height/8;
         var w = ht.width, h = ht.height, 
           arrow_r_x = (arrow_offset + arrow_w),
           arrow_l_x = (arrow_offset - arrow_w),
@@ -127,7 +130,7 @@ var bubblemap = function(){
       width: 300,
       height: 100,
       xoffset: 150,
-      yoffset: 125
+      yoffset: 120
     };
 
     generatesHTPaths(hovertool);

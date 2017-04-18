@@ -169,7 +169,7 @@ function State(svg, map, data, units, width, height) {
         // console.log(svg);
         var datas = svg.append("g");
         Object.keys(cleanData[id]).forEach((key) => {
-            console.log(key);
+            // console.log(key);
         })
         // (cleanData[id])
 
