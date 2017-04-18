@@ -358,6 +358,8 @@ function State(svg, map, data, units, width, height) {
             data = [12500, 10000, 7500, 5000, 2500];
         }
 
+        var column = this.column;
+
         var legend = svg.selectAll("g.legend")
         .remove()
         .exit()
@@ -388,8 +390,9 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)) + " " + units[0][column]; })
             .style("opacity", 0)
+            .style("stroke", "none")
             .transition()
             .duration(function(d, i){ return 500 + 100 * i})
             .style("opacity", 1);
@@ -399,7 +402,7 @@ function State(svg, map, data, units, width, height) {
             legend.append("circle")
             .attr("cx", 70)
             .attr("cy", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .style("fill", function(d, i) { return color; })
+            .style("fill", function(d, i) { var c = d3.color(color); c.opacity = 0.8; return c.toString(); })
             .style("stroke", "white")
             .style("stroke-width", "3px")
             .transition()
@@ -411,8 +414,9 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)) + " " + units[0][column]; })
             .style("opacity", 0)
+            .style("stroke", "none")
             .transition()
             .duration(function(d, i){ return 500 + 250 * i})
             .style("opacity", 1);
