@@ -29,12 +29,13 @@ function State(svg, map, data, units, width, height) {
     //     return [horizontal_offset + width / 2 + Math.cos(sigma) * r, vertical_offset + height / 2 + Math.sin(sigma) * r];
     // }
 
-    // arc = deg * r ^ 2 / 2
     var areaScale;
     var opacityScale;
     var graphXScale;
     var graphYScale;
-
+    var examine_text_g = svg.append("g");
+    var examine_text;
+    
     // this should definitely be temporary.
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
     map.forEach((d) => d.name = cleanData[d.id].STNAME);
@@ -55,7 +56,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
 
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 500
@@ -72,7 +73,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; 
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 300
@@ -88,7 +89,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill-opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; 
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 500
@@ -104,7 +105,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
@@ -138,9 +139,10 @@ function State(svg, map, data, units, width, height) {
 
     this.set_map_state = function(state_name, options) {
         // Set the current state
+        this.remove_examine_state();
         this.previous_state = this.current_state;
         this.current_state = state_name;
-
+        
         // Change domains to reflect data changes
         this.set_domains();
 
@@ -157,7 +159,8 @@ function State(svg, map, data, units, width, height) {
         this.map.shape(stateOptions.shape, stateOptions.shape_duration)
             .location(stateOptions.location)
             .tween(stateOptions.tween, stateOptions.tween_duration)
-            .forEach(stateOptions.forEach);
+            .forEach(stateOptions.forEach)
+            .onClick((d) => state.set_examine_state(d.id));
 
         // Draw or remove axes as necessary
         if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
@@ -165,13 +168,43 @@ function State(svg, map, data, units, width, height) {
    
     }
 
+    this.remove_examine_state = function(){
+        if(examine_text) examine_text.remove().exit();
+        examine_text_g.selectAll("text").remove();
+    }
+
     this.set_examine_state = function(id){
-        // console.log(svg);
-        var datas = svg.append("g");
-        Object.keys(cleanData[id]).forEach((key) => {
-            // console.log(key);
+        var data = Object.keys(cleanData[id]).filter((a) => 
+            !["SUMLEV", "REGION", "DIVISION", "STATE", "COUNTY", "STNAME"].includes(a));
+        data = data.map((k) => {return {key: k, val: cleanData[id][k], units: units[0][k]}})
+        var cDl = data.length;
+
+        examine_text = examine_text_g.selectAll("text").data(data).enter()
+        .append("text")
+        .text((d) => d.key + ": " + d.val + " " + d.units)
+        .attr("dy", "1em")
+        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
+        .attr("x", (d, i) => {
+            var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
+            return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
         })
-        // (cleanData[id])
+        .attr("y", (d, i) => {
+            return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
+        }).style("opacity", 0);
+
+        examine_text.transition().duration(500)
+        .style("opacity", 1);
+
+        examine_text_g.append("text").text(cleanData[id]["STNAME"])
+        .style("fill", color)
+        .style("stroke", color)
+        .style("font-size", "20pt")
+        .style("text-anchor", "middle")
+        .attr("x", horizontal_offset + width/2)
+        .attr("y", 100)
+        .style("opacity", 0)
+        .transition().duration(500)
+        .style("opacity", 1);
 
         this.map.shape((d) => d.state_shape, 500)
             .location((d) => { 
@@ -190,7 +223,8 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
             ], 500)
-            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true;});
+            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true; d.no_hover = true;})
+            .onClick((d) => state.set_map_state(this.current_state));
 
         this.remove_axises();
         this.remove_scale();

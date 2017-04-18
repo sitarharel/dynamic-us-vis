@@ -205,5 +205,7 @@ select {
   background-color: var(--text-color);
 }
 
-
+.node {
+    cursor: pointer
+}
 

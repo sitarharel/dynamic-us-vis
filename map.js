@@ -31,10 +31,12 @@ var bubblemap = function(){
       click_handler(d);
     })
     .on("mouseover",function(d){ 
-      hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
-      createHT(hovertool);
-      hovertool.body.style("visibility", "visible")
-      d.sw = 2;
+      if(!d.no_hover){
+        hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
+        createHT(hovertool);
+        hovertool.body.style("visibility", "visible")
+        d.sw = 2;
+      }
     })
     .on("mousemove", updateHover)
     .on("mouseout", function(d){ 
@@ -67,8 +69,8 @@ var bubblemap = function(){
         // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
         // if(d.style.stroke_width - d.psw != 0) console.log(d.name + ": " + d.style.stroke_width - d.psw); 
         // d.psw = d.stroke_width;
-        if(d.sw) return d.sw / Math.sqrt(d.area/d.origin_area)
-        return d.style.stroke_width / Math.sqrt(d.area/d.origin_area);
+        // if(d.sw) return d.sw / Math.sqrt(d.area/d.origin_area)
+        return (d.style.stroke_width + d.sw) / Math.sqrt(d.area/d.origin_area);
       });
 
       if(click_handler != node_vis.on("click"))
@@ -308,7 +310,9 @@ var bubblemap = function(){
       no_drag: false, // whether or not user should be able to interact with nodes
       state_shape: pathGenerator(d), // shape of the state
       origin_shape: d,
+      no_hover: false,
       psw: 0,
+      sw: 0,
       style: {
         fill: "none",
         stroke: "white",
