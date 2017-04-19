@@ -33,7 +33,7 @@ var bubblemap = function(){
     .on("mouseover",function(d){ 
       if(!d.no_hover){
         hovertool.body.remove().exit();
-        hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
+        // hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
         createHT(hovertool);
         hovertool.body.style("visibility", "visible")
         d.sw = 2;
@@ -99,21 +99,18 @@ var bubblemap = function(){
 
     }
 
+    // The following is code for the hovering tooltip
+
     function generatesHTPaths(ht){
       ht.xoffset = ht.width/2;
       var arrow_offset = ht.width/2, 
-        arrow_w = ht.height/10, 
-        arrow_h = ht.height/8;
+        arrow_w = 8, 
+        arrow_h = 10;
         var w = ht.width, h = ht.height, 
           arrow_r_x = (arrow_offset + arrow_w),
           arrow_l_x = (arrow_offset - arrow_w),
           arrow_m_x = (arrow_offset),
           arrow_m_y = (ht.height + arrow_h);
-        // ht.bpath = "M0,0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
-        //     (-arrow_h) + " " + arrow_r_x + ",0 " + w + ",0 " + w + "," + h + " 0," + h + " 0,0 Z";
-        // ht.tpath = "M0,0 L" + w + ",0 " + w + "," + h + " " + arrow_r_x + "," + 
-        //   h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
-        //   h + " 0," + h + " 0,0 Z";
         var rad = 15;
         w1 = w-rad;
         h1 = rad;
@@ -141,13 +138,11 @@ var bubblemap = function(){
           " Z";
     }
 
-    // quick tool for initial hover label
-    // 120,150,60,175
     hovertool = {
       width: 300,
-      height: 100,
+      height: 120,
       xoffset: 150,
-      yoffset: 120
+      yoffset: 175
     };
 
     generatesHTPaths(hovertool);
@@ -174,13 +169,24 @@ var bubblemap = function(){
       hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
       .attr("y", 70);
-    }
-    
 
-    function mkBox(g, text1, text2, title) {
+      hovertool.bodytext3 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 100);
+
+      hovertool.bodytext4 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 120);
+    }
+
+    function mkBox(g, text1, text2, text3, text4,title) {
       var dim1 = text1.node().getBBox();
       var dim2 = text2.node().getBBox();
-      g.width = Math.max(dim1.width+30,dim2.width+30,120);
+      var dim3 = text3.node().getBBox();
+      var dim4 = text4.node().getBBox();
+      g.width = Math.max(dim1.width+20,dim2.width+20,dim3.width+20,dim4.width+20,110);
+      g.height = 70+(dim2.height+dim3.height+dim4.height);
+      g.yoffset = 86+(dim2.height+dim3.height+dim4.height);
       generatesHTPaths(g);
       title.attr("x",g.width/2);
     }
@@ -190,7 +196,9 @@ var bubblemap = function(){
 
       hovertool.bodytext.text(d.tooltip);
       hovertool.bodytext2.text(d.tooltip2);
-      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.title);
+      hovertool.bodytext3.text(d.tooltip3);
+      hovertool.bodytext4.text(d.tooltip4);
+      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.bodytext3,hovertool.bodytext4,hovertool.title);
       hovertool.title.text(d.name);
 
       if(y < hovertool.yoffset) {

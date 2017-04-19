@@ -4,6 +4,7 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
+
     var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
     var color = colors[0];
 
@@ -53,7 +54,9 @@ function State(svg, map, data, units, width, height) {
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
 
         },
@@ -71,7 +74,9 @@ function State(svg, map, data, units, width, height) {
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 300
         },
         "layout": {
@@ -88,7 +93,9 @@ function State(svg, map, data, units, width, height) {
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.text = "" + (this.get_data(d.id) + 1) + ". " + d.name ;
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
         },
         "graph": {
@@ -104,8 +111,10 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":";
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -120,12 +129,17 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
-                d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+                d.text = "";
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":"
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
-    }
+    };
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
@@ -180,16 +194,25 @@ function State(svg, map, data, units, width, height) {
 
         examine_text = examine_text_g.selectAll("text").data(data).enter()
         .append("text")
-        .text((d) => d.key + ": " + d.val + " " + d.units)
-        .attr("dy", "1em")
-        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
         .attr("x", (d, i) => {
             var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
             return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
         })
         .attr("y", (d, i) => {
             return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
-        }).style("opacity", 0);
+        })
+        .attr("dy", "1em")
+        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
+        .style("stroke", "none")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.key + ": ")
+        .append("tspan")
+        .style("font-weight", 700)
+        .text((d) => d.val + " ")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.units)
 
         examine_text.transition().duration(500)
         .style("opacity", 1);
@@ -343,31 +366,60 @@ function State(svg, map, data, units, width, height) {
             .text(this.compared_to)
 
 
-        var params = this.lin_reg(this.data,this.column,this.compared_to);
-        var col = this.column;
-        var comp = this.compared_to;
-        var dat = this.data.slice(0,this.data.length-1);     
+            var params = this.lin_reg(this.data,this.column,this.compared_to);
+            var col = this.column;
+            var comp = this.compared_to;
+            var dat = this.data.slice(0,this.data.length-1);   
 
-        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold
-            xrange = graphXScale.domain();
-            this.svg.append("line")
+
+            this.svg.append("text")
             .attr("class","regression-line")
-            .attr("x1",graphXScale(xrange[0]))
-            .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
-            .attr("x2",graphXScale(xrange[1]))
-            .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
-            .style("stroke-width","2px");
+            .attr("x",this.svg.attr("width")-horizontal_offset)
+            .attr("y",100)
+            .attr("font-size","20px")
+            .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
+   
 
-            var errorlines = this.svg.selectAll(".error-line")
-            .data(dat)
-            .enter()
-            .append("line")
-            .attr("class","error-line")
-            .attr("x1",function(d){return graphXScale(d[col])})
-            .attr("y1",function(d){return graphYScale(params[1]+params[0]*d[col])})
-            .attr("x2",function(d){return graphXScale(d[col])})
-            .attr("y2",function(d){return graphYScale(d[comp])})
-            .style("opacity",0.5);           
+            if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+              
+                xrange = graphXScale.domain();
+                this.svg.append("line")
+                .attr("class","regression-line")
+                .attr("x1",graphXScale(xrange[0]))
+                .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
+                .attr("x2",graphXScale(xrange[1]))
+                .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
+                .style("stroke-width","2px");
+
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",130)
+                .attr("font-size","20px")
+                .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
+
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",160)
+                .attr("font-size","20px")
+                .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
+
+            if (this.current_state=="graph_circle"){  
+                var errorlines = this.svg.selectAll(".error-line")
+                .data(dat)
+                .enter()
+                .append("line")
+                .attr("class","error-line")
+                .attr("x1",function(d){return graphXScale(d[col])})
+                .attr("y1",function(d){
+                    y1 = graphYScale(params[1]+params[0]*d[col]);
+                    if (y1>vertical_offset) return y1;
+                    return graphYScale(d[comp])})
+                .attr("x2",function(d){return graphXScale(d[col])})
+                .attr("y2",function(d){return graphYScale(d[comp])})
+                .style("opacity",0.5);           
+            }
         }
 
 
@@ -446,9 +498,20 @@ function State(svg, map, data, units, width, height) {
 
             legend.append("text")
             .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start - ls_h)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
+            legend.append("text")
+            .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
@@ -456,6 +519,17 @@ function State(svg, map, data, units, width, height) {
             .style("opacity", 1);
 
         } else if (this.current_state == "circle") {
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start / 2)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
             var prev_height = 0;
             legend.append("circle")
             .attr("cx", 70)
@@ -472,7 +546,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
