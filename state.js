@@ -234,11 +234,17 @@ function State(svg, map, data, units, width, height) {
         return colors[n % colors.length];
     }
 
+    //http://stackoverflow.com/questions/34888205/insert-padding-so-that-points-do-not-overlap-with-y-or-x-axis
+    function getExtendedDomain(extent){
+        range = extent[1] - extent[0];
+        return [extent[0] - range * 0.05, extent[1] + range * 0.05];
+    }
+
     this.set_domains = function() {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
         opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain(extent);
-        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(extent);
+        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(getExtendedDomain(extent));
 
         if (this.current_state == "layout")
             opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain([0, Object.values(columnData).length]);
@@ -297,7 +303,9 @@ function State(svg, map, data, units, width, height) {
             comparedToData[+d.STATE] = (comparedToData[+d.STATE] || 0) + +d[column];
         });
         var extent = d3.extent(Object.values(comparedToData));
-        graphYScale = d3.scaleLinear().range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1]).domain(extent);
+        graphYScale = d3.scaleLinear()
+            .range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1])
+            .domain(getExtendedDomain(extent));
 
         this.set_map_state(this.current_state);
     }
