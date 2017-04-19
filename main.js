@@ -21,7 +21,7 @@ d3.queue()
     if (err) throw err;
     var svg = d3.select("#statesmap")
     .attr("viewBox", "0 0 1500 800")
-    .attr("width", "92%").attr("height", "auto");
+    .attr("width", "92%");
 
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
     state = new State(svg, map, pop, units, 1000, 800);
