@@ -130,7 +130,7 @@ var bubblemap = function(){
     // 120,150,60,175
     hovertool = {
       width: 300,
-      height: 100,
+      height: 70,
       xoffset: 150,
       yoffset: 120
     };
@@ -159,13 +159,18 @@ var bubblemap = function(){
       hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
       .attr("y", 70);
+
+      hovertool.bodytext3 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 90);
     }
     
 
-    function mkBox(g, text1, text2, title) {
+    function mkBox(g, text1, text2,title) {
       var dim1 = text1.node().getBBox();
       var dim2 = text2.node().getBBox();
       g.width = Math.max(dim1.width+30,dim2.width+30,120);
+      g.height = 70+(dim2.height);
       generatesHTPaths(g);
       title.attr("x",g.width/2);
     }

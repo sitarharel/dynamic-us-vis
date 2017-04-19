@@ -4,6 +4,7 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
+
     var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
     var color = colors[0];
 
@@ -75,7 +76,7 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";},
             "tween_duration": 300
         },
         "layout": {
@@ -106,8 +107,8 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+": "+cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = this.compared_to+": "+cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to];},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -122,11 +123,11 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+": "+cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = this.compared_to+": "+cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
-    }
+    };
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
@@ -336,31 +337,38 @@ function State(svg, map, data, units, width, height) {
             .text(this.compared_to)
 
 
-        var params = this.lin_reg(this.data,this.column,this.compared_to);
-        var col = this.column;
-        var comp = this.compared_to;
-        var dat = this.data.slice(0,this.data.length-1);     
+        
+            var params = this.lin_reg(this.data,this.column,this.compared_to);
+            var col = this.column;
+            var comp = this.compared_to;
+            var dat = this.data.slice(0,this.data.length-1);     
 
-        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold
-            xrange = graphXScale.domain();
-            this.svg.append("line")
-            .attr("class","regression-line")
-            .attr("x1",graphXScale(xrange[0]))
-            .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
-            .attr("x2",graphXScale(xrange[1]))
-            .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
-            .style("stroke-width","2px");
+            if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+              
+                xrange = graphXScale.domain();
+                this.svg.append("line")
+                .attr("class","regression-line")
+                .attr("x1",graphXScale(xrange[0]))
+                .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
+                .attr("x2",graphXScale(xrange[1]))
+                .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
+                .style("stroke-width","2px");
 
-            var errorlines = this.svg.selectAll(".error-line")
-            .data(dat)
-            .enter()
-            .append("line")
-            .attr("class","error-line")
-            .attr("x1",function(d){return graphXScale(d[col])})
-            .attr("y1",function(d){return graphYScale(params[1]+params[0]*d[col])})
-            .attr("x2",function(d){return graphXScale(d[col])})
-            .attr("y2",function(d){return graphYScale(d[comp])})
-            .style("opacity",0.5);           
+            if (this.current_state=="graph_circle"){  
+                var errorlines = this.svg.selectAll(".error-line")
+                .data(dat)
+                .enter()
+                .append("line")
+                .attr("class","error-line")
+                .attr("x1",function(d){return graphXScale(d[col])})
+                .attr("y1",function(d){
+                    y1 = graphYScale(params[1]+params[0]*d[col]);
+                    if (y1>vertical_offset) return y1;
+                    return graphYScale(d[comp])})
+                .attr("x2",function(d){return graphXScale(d[col])})
+                .attr("y2",function(d){return graphYScale(d[comp])})
+                .style("opacity",0.5);           
+            }
         }
 
 
