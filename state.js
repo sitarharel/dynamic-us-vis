@@ -8,10 +8,12 @@ function State(svg, map, data, units, width, height) {
     var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
     var color = colors[0];
 
-    width = width ? width : +svg.attr("width");
-    height = height ? height : +svg.attr("height");
-    var horizontal_offset = (+svg.attr("width") - width)/2;
-    var vertical_offset = (+svg.attr("height") - height)/2;
+
+    var vb = svg.attr('viewBox').split(/\s+|,/);
+    width = width ? width : +vb[2];
+    height = height ? height : +vb[3];
+    var horizontal_offset = (+vb[2] - width)/2;
+    var vertical_offset = (+vb[3] - height)/2;
     var locationColumns = 6;
     var locationRows = 9;
     var locationCoordinates = [];
@@ -192,16 +194,25 @@ function State(svg, map, data, units, width, height) {
 
         examine_text = examine_text_g.selectAll("text").data(data).enter()
         .append("text")
-        .text((d) => d.key + ": " + d.val + " " + d.units)
-        .attr("dy", "1em")
-        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
         .attr("x", (d, i) => {
             var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
             return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
         })
         .attr("y", (d, i) => {
             return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
-        }).style("opacity", 0);
+        })
+        .attr("dy", "1em")
+        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
+        .style("stroke", "none")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.key + ": ")
+        .append("tspan")
+        .style("font-weight", 700)
+        .text((d) => d.val + " ")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.units)
 
         examine_text.transition().duration(500)
         .style("opacity", 1);
@@ -245,11 +256,17 @@ function State(svg, map, data, units, width, height) {
         return colors[n % colors.length];
     }
 
+    //http://stackoverflow.com/questions/34888205/insert-padding-so-that-points-do-not-overlap-with-y-or-x-axis
+    function getExtendedDomain(extent){
+        range = extent[1] - extent[0];
+        return [extent[0] - range * 0.05, extent[1] + range * 0.05];
+    }
+
     this.set_domains = function() {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
         opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain(extent);
-        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(extent);
+        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(getExtendedDomain(extent));
 
         if (this.current_state == "layout")
             opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain([0, Object.values(columnData).length]);
@@ -308,7 +325,9 @@ function State(svg, map, data, units, width, height) {
             comparedToData[+d.STATE] = (comparedToData[+d.STATE] || 0) + +d[column];
         });
         var extent = d3.extent(Object.values(comparedToData));
-        graphYScale = d3.scaleLinear().range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1]).domain(extent);
+        graphYScale = d3.scaleLinear()
+            .range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1])
+            .domain(getExtendedDomain(extent));
 
         this.set_map_state(this.current_state);
     }
@@ -479,9 +498,20 @@ function State(svg, map, data, units, width, height) {
 
             legend.append("text")
             .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start - ls_h)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
+            legend.append("text")
+            .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
@@ -489,6 +519,17 @@ function State(svg, map, data, units, width, height) {
             .style("opacity", 1);
 
         } else if (this.current_state == "circle") {
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start / 2)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
             var prev_height = 0;
             legend.append("circle")
             .attr("cx", 70)
@@ -505,7 +546,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()

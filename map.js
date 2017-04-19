@@ -224,8 +224,9 @@ var bubblemap = function(){
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
-    wPadding = (+svg.attr("width") - width)/2;
-    hPadding = (+svg.attr("height") - height)/2;
+    var vb = svg.attr('viewBox').split(/\s+|,/);
+    wPadding = (+vb[2] - width)/2;
+    hPadding = (+vb[3] - height)/2;
     projection.fitExtent([[wPadding,hPadding], [width+wPadding, height+hPadding]], states);
 
     return bm;
@@ -234,8 +235,9 @@ var bubblemap = function(){
   bm.svg = function(s, w, h){
     if(!s) return svg;
     svg = s;
-    width = w ? w : +svg.attr("width");
-    height = h ? h : +svg.attr("height");
+    var vb = svg.attr('viewBox').split(/\s+|,/);
+    width = w ? w : +vb[2];
+    height = h ? h : +vb[3];
     return bm;
   }
 

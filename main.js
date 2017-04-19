@@ -19,8 +19,9 @@ d3.queue()
 .defer(d3.csv,"units.csv")
 .await(function(err, us, pop, units){
     if (err) throw err;
-    var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800)
-    .attr("viewBox", "0 0 1500 800");
+    var svg = d3.select("#statesmap")
+    .attr("viewBox", "0 0 1500 800")
+    .attr("width", "92%");
 
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
     state = new State(svg, map, pop, units, 1000, 800);
