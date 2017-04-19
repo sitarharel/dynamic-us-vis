@@ -23,13 +23,6 @@ function State(svg, map, data, units, width, height) {
         }
     }
     var locationScale = function(d) { return locationCoordinates[d]; }
-    // var spiralScale = function(rank){
-    //     d3.svg.line.radial()
-    //     var r = rank * 10 + 50;
-    //     var dist = 50*50*30
-    //     var sigma = 6 * dist * 2 * Math.PI * (rank/50)/(r*r);
-    //     return [horizontal_offset + width / 2 + Math.cos(sigma) * r, vertical_offset + height / 2 + Math.sin(sigma) * r];
-    // }
 
     var areaScale;
     var opacityScale;
@@ -38,7 +31,6 @@ function State(svg, map, data, units, width, height) {
     var examine_text_g = svg.append("g");
     var examine_text;
     
-    // this should definitely be temporary.
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
     map.forEach((d) => d.name = cleanData[d.id].STNAME);
 
@@ -123,7 +115,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500

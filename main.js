@@ -11,8 +11,6 @@ var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
 var info_box = document.getElementById('info'); 
 
-
-
 d3.queue()
 .defer(d3.json, "us.json")
 .defer(d3.csv, "statedata.csv")
@@ -21,7 +19,7 @@ d3.queue()
     if (err) throw err;
     var svg = d3.select("#statesmap")
     .attr("viewBox", "0 0 1500 800")
-    .attr("width", "92%");
+    .attr("width", "80%");
 
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
     state = new State(svg, map, pop, units, 1000, 800);
