@@ -341,7 +341,16 @@ function State(svg, map, data, units, width, height) {
             var params = this.lin_reg(this.data,this.column,this.compared_to);
             var col = this.column;
             var comp = this.compared_to;
-            var dat = this.data.slice(0,this.data.length-1);     
+            var dat = this.data.slice(0,this.data.length-1);   
+
+
+            this.svg.append("text")
+            .attr("class","regression-line")
+            .attr("x",this.svg.attr("width")-horizontal_offset)
+            .attr("y",100)
+            .attr("font-size","20px")
+            .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
+   
 
             if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
               
@@ -353,6 +362,20 @@ function State(svg, map, data, units, width, height) {
                 .attr("x2",graphXScale(xrange[1]))
                 .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
                 .style("stroke-width","2px");
+
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",130)
+                .attr("font-size","20px")
+                .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
+
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",160)
+                .attr("font-size","20px")
+                .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
 
             if (this.current_state=="graph_circle"){  
                 var errorlines = this.svg.selectAll(".error-line")
