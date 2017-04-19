@@ -183,16 +183,25 @@ function State(svg, map, data, units, width, height) {
 
         examine_text = examine_text_g.selectAll("text").data(data).enter()
         .append("text")
-        .text((d) => d.key + ": " + d.val + " " + d.units)
-        .attr("dy", "1em")
-        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
         .attr("x", (d, i) => {
             var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
             return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
         })
         .attr("y", (d, i) => {
             return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
-        }).style("opacity", 0);
+        })
+        .attr("dy", "1em")
+        .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
+        .style("stroke", "none")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.key + ": ")
+        .append("tspan")
+        .style("font-weight", 700)
+        .text((d) => d.val + " ")
+        .append("tspan")
+        .style("font-weight", 400)
+        .text((d) => d.units)
 
         examine_text.transition().duration(500)
         .style("opacity", 1);
@@ -449,9 +458,20 @@ function State(svg, map, data, units, width, height) {
 
             legend.append("text")
             .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start - ls_h)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
+            legend.append("text")
+            .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
@@ -459,6 +479,17 @@ function State(svg, map, data, units, width, height) {
             .style("opacity", 1);
 
         } else if (this.current_state == "circle") {
+            legend.append("text")
+            .attr("class", "legendLabel")
+            .attr("x", 50)
+            .attr("y", label_start / 2)
+            .style("stroke", "none")
+            .text(units[0][column])
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .style("opacity", 1)
+
             var prev_height = 0;
             legend.append("circle")
             .attr("cx", 70)
@@ -475,7 +506,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)) + " " + units[0][column]; })
+            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
