@@ -489,7 +489,11 @@ function State(svg, map, data, units, width, height) {
                 .text((i+1) + ". " + stateNames[d])
                 .style("stroke", "none")
                 .style("text-anchor", "middle")
-                .style("font-size", "14px")
+                .style("font-size", "16px")
+                // .style("opacity", 0)
+                // .transition()
+                // .duration(500 + 50 * i)
+                // .style("opacity", 1);
             });
         }
     }

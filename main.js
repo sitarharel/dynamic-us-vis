@@ -9,8 +9,6 @@ var info_button = d3.select("#INFO_button");
 var graph_circle_button = d3.select("#GRAPH_CIRCLE_button");
 var select_x = d3.select("#x_axis");
 var select_y = d3.select("#y_axis");
-// var info_box = d3.select("#info");
-// var info_box = document.getElementById("info");
 var info_box = document.getElementById('info'); 
 
 
@@ -21,12 +19,11 @@ d3.queue()
 .defer(d3.csv,"units.csv")
 .await(function(err, us, pop, units){
     if (err) throw err;
-    var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800);
+    var svg = d3.select("#statesmap").attr("width", 1500).attr("height", 800)
+    .attr("viewBox", "0 0 1500 800");
 
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
-
     state = new State(svg, map, pop, units, 1000, 800);
-
 
     document.documentElement.style.setProperty('--main-color',state.get_color(
           Object.keys(state.data[0]).indexOf(state.column)));
@@ -84,7 +81,7 @@ d3.queue()
 
     info_button.on("click",maxHeightSlide);
 
-    map.onClick((d) => state.set_examine_state(d.id));
+    // map.onClick((d) => state.set_examine_state(d.id));
 
 });
 
