@@ -210,8 +210,9 @@ var bubblemap = function(){
     if(proj) projection = proj;
     else projection = d3.geoAlbersUsa();
     pathGenerator = d3.geoPath().projection(projection);
-    wPadding = (+svg.attr("width") - width)/2;
-    hPadding = (+svg.attr("height") - height)/2;
+    var vb = svg.attr('viewBox').split(/\s+|,/);
+    wPadding = (+vb[2] - width)/2;
+    hPadding = (+vb[3] - height)/2;
     projection.fitExtent([[wPadding,hPadding], [width+wPadding, height+hPadding]], states);
 
     return bm;
@@ -220,8 +221,9 @@ var bubblemap = function(){
   bm.svg = function(s, w, h){
     if(!s) return svg;
     svg = s;
-    width = w ? w : +svg.attr("width");
-    height = h ? h : +svg.attr("height");
+    var vb = svg.attr('viewBox').split(/\s+|,/);
+    width = w ? w : +vb[2];
+    height = h ? h : +vb[3];
     return bm;
   }
 
@@ -330,27 +332,25 @@ var bubblemap = function(){
     return p.toString();
   }
 
-  function mergablepath(d, r, x, y){
+  /* This generates a path for a circle that is actually a set of lines with the
+   * property that it has the same number of arcs as topology [topo]. This
+   * enables simple path interpolation between the two. */
+  function mergablepath(topo, r, x, y){
     x = x || 0;
     y = y || 0;
-    // var coords = d.geometry.coordinates[0];
-    // if(d.geometry.type == "MultiPolygon") {
-    //   console.log(d)
-    //   coords = d.geometry.coordinates.reduce((a,x) => a.concat(x[0]), []);
-    // }
-    // var len = coords.length;
-    var len = ((pathGenerator(d) || "").match(/L|M/g) || []).length
-    // console.log(d.id + ": " + len);
+
+    var len = ((pathGenerator(topo) || "").match(/L|M/g) || []).length
+    // if(topo.id == 2) console.log(topo.id + ": " + len);
     var angleoffset = 2 * Math.PI / len;
     var angle = 0;
-    var res = "M ";
+    var res = "M";
     for (var i = 0; i < len - 1; i++){
-      res = res + " " + (x + r * Math.cos(angle)) + 
-      " " + (y + r * Math.sin(angle)) + " L "
+      res = res + "" + (x + r * Math.cos(angle)).toFixed(4) + 
+      "," + (y + r * Math.sin(angle)).toFixed(4) + "L"
       angle += angleoffset;
     }
-    res = res +  " " + (x + r * Math.cos(angle)) + 
-      " " + (y + r * Math.sin(angle)) + " Z"    // centroid = polygon.centroid(-1 / (6 * area)),
+    res = res +  "" + (x + r * Math.cos(angle)).toFixed(4) + 
+      "," + (y + r * Math.sin(angle)).toFixed(4) + "Z"  
     return res;
   }
 
