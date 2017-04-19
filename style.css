@@ -142,7 +142,7 @@ select {
 }
 
 .regression-line{
-  stroke-dasharray: 1000;
+  stroke-dasharray: 1100;
     stroke-dashoffset: 1000;
     animation: dash 1s linear forwards;
 }

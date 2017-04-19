@@ -335,32 +335,36 @@ function State(svg, map, data, units, width, height) {
             .style("text-anchor", "middle")
             .text(this.compared_to)
 
+        if (this.current_state=="graph_circle"){
+            var params = this.lin_reg(this.data,this.column,this.compared_to);
+            var col = this.column;
+            var comp = this.compared_to;
+            var dat = this.data.slice(0,this.data.length-1);     
 
-        var params = this.lin_reg(this.data,this.column,this.compared_to);
-        var col = this.column;
-        var comp = this.compared_to;
-        var dat = this.data.slice(0,this.data.length-1);     
+            if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+                xrange = graphXScale.domain();
+                this.svg.append("line")
+                .attr("class","regression-line")
+                .attr("x1",graphXScale(xrange[0]))
+                .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
+                .attr("x2",graphXScale(xrange[1]))
+                .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
+                .style("stroke-width","2px");
 
-        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold
-            xrange = graphXScale.domain();
-            this.svg.append("line")
-            .attr("class","regression-line")
-            .attr("x1",graphXScale(xrange[0]))
-            .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
-            .attr("x2",graphXScale(xrange[1]))
-            .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
-            .style("stroke-width","2px");
-
-            var errorlines = this.svg.selectAll(".error-line")
-            .data(dat)
-            .enter()
-            .append("line")
-            .attr("class","error-line")
-            .attr("x1",function(d){return graphXScale(d[col])})
-            .attr("y1",function(d){return graphYScale(params[1]+params[0]*d[col])})
-            .attr("x2",function(d){return graphXScale(d[col])})
-            .attr("y2",function(d){return graphYScale(d[comp])})
-            .style("opacity",0.5);           
+                var errorlines = this.svg.selectAll(".error-line")
+                .data(dat)
+                .enter()
+                .append("line")
+                .attr("class","error-line")
+                .attr("x1",function(d){return graphXScale(d[col])})
+                .attr("y1",function(d){
+                    y1 = graphYScale(params[1]+params[0]*d[col]);
+                    if (y1>vertical_offset) return y1;
+                    return graphYScale(d[comp])})
+                .attr("x2",function(d){return graphXScale(d[col])})
+                .attr("y2",function(d){return graphYScale(d[comp])})
+                .style("opacity",0.5);           
+            }
         }
 
 
