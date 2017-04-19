@@ -51,6 +51,7 @@ function State(svg, map, data, units, width, height) {
             ],
 
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
+                d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 500
@@ -68,6 +69,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 3}
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
+                d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 300
@@ -84,6 +86,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 1}
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
+                d.text = "" + (this.get_data(d.id) + 1) + ". " + d.name ;
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = ""},
             "tween_duration": 500
@@ -100,6 +103,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
+                d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
@@ -116,6 +120,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
+                d.text = "";
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
@@ -217,7 +222,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
             ], 500)
-            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true; d.no_hover = true;})
+            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true; d.no_hover = true; d.text = "";})
             .onClick((d) => state.set_map_state(this.current_state));
 
         this.remove_axises();
@@ -474,25 +479,25 @@ function State(svg, map, data, units, width, height) {
             .duration(function(d, i){ return 500 + 250 * i})
             .style("opacity", 1);
         } else if (this.current_state == "layout") {
-            var keys = sortStateByValue();
-            var stateNames = {};
-            this.data.forEach(function(s){ stateNames[s.STATE] = s.STNAME; });
+            // var keys = sortStateByValue();
+            // var stateNames = {};
+            // this.data.forEach(function(s){ stateNames[s.STATE] = s.STNAME; });
 
-            keys.forEach(function(d, i){
-                var loc = locationScale(i);
+            // keys.forEach(function(d, i){
+            //     var loc = locationScale(i);
 
-                legend.append("text")
-                .attr("x", loc[0])
-                .attr("y", loc[1] + 50)
-                .text((i+1) + ". " + stateNames[d])
-                .style("stroke", "none")
-                .style("text-anchor", "middle")
-                .style("font-size", "16px")
-                // .style("opacity", 0)
-                // .transition()
-                // .duration(500 + 50 * i)
-                // .style("opacity", 1);
-            });
+            //     legend.append("text")
+            //     .attr("x", loc[0])
+            //     .attr("y", loc[1] + 50)
+            //     .text((i+1) + ". " + stateNames[d])
+            //     .style("stroke", "none")
+            //     .style("text-anchor", "middle")
+            //     .style("font-size", "16px")
+            //     .style("opacity", 0)
+            //     .transition()
+            //     .duration(500 + 50 * i)
+            //     .style("opacity", 1);
+            // });
         }
     }
 

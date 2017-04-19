@@ -32,6 +32,7 @@ var bubblemap = function(){
     })
     .on("mouseover",function(d){ 
       if(!d.no_hover){
+        hovertool.body.remove().exit();
         hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
         createHT(hovertool);
         hovertool.body.style("visibility", "visible")
@@ -44,6 +45,14 @@ var bubblemap = function(){
       hovertool.body.style("visibility", "hidden")
     });
 
+    textv = svg.selectAll(".node_description").data(nodedata);
+
+    text_vis = textv.enter().append("text")
+    .merge(textv)
+    .style("text-anchor", "middle")
+    .text((d) => d.text)
+    .attr("x", d => d.x)
+    .attr("y", d => d.y + 200);
 
     simulation.nodes(nodedata).on("tick", on_tick);
     simulation.force("x_pos").strength((d) => 0.08);
@@ -52,6 +61,7 @@ var bubblemap = function(){
     simulation.velocityDecay(0.4);
     simulation.alpha(1).restart();
     setInterval(on_tick, 750);
+
     // this gets called every tick. used to do force stuff but also for reactive updating
     function on_tick() {
       simulation.force("collision").radius((d) => {return d.no_clip ? 0 : Math.sqrt(d.area/Math.PI) + 2})
@@ -72,6 +82,11 @@ var bubblemap = function(){
         // if(d.sw) return d.sw / Math.sqrt(d.area/d.origin_area)
         return (d.style.stroke_width + d.sw) / Math.sqrt(d.area/d.origin_area);
       });
+
+    text_vis
+    .attr("x", (d) => d.x)
+    .attr("y", (d) => d.y + Math.sqrt(d.area/Math.PI) + 23)
+    .text((d) => d.text);
 
       if(click_handler != node_vis.on("click"))
         node_vis.on("click", click_handler)
@@ -189,7 +204,6 @@ var bubblemap = function(){
         hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
           + "," + (y - hovertool.yoffset) + ")");
       } 
-      
     }
 
     return bm;
@@ -304,6 +318,7 @@ var bubblemap = function(){
       y: center[1], 
       tooltip: "This is a tooltip",
       name: "",
+      text: "",
       root: center, // roots are the locations that objects are attracted to
       geo_origin: center, // geo_origin is the offset value to the center of the shape in the path
                           // ex: a square from -5,-5 to 15,15 would have geo_origin = [5, 5]
