@@ -150,8 +150,9 @@ select {
 .error-line{
   stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
-    animation-delay: 2s;
-    animation: dash 6s linear forwards;
+    animation-delay: 4s;
+    animation-duration: 5s;
+    animation: dash 2s linear forwards;
 }
 
 @keyframes dash {

@@ -4,6 +4,7 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
+
     var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
     var color = colors[0];
 
@@ -58,7 +59,9 @@ function State(svg, map, data, units, width, height) {
 
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
 
         },
@@ -75,7 +78,9 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 300
         },
         "layout": {
@@ -91,7 +96,9 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
         },
         "graph": {
@@ -106,8 +113,10 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":";
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -122,11 +131,13 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":"
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
-    }
+    };
 
     this.column = "POPULATION (2010)";
     this.compared_to = "STARBUCKS";
@@ -335,13 +346,23 @@ function State(svg, map, data, units, width, height) {
             .style("text-anchor", "middle")
             .text(this.compared_to)
 
-        if (this.current_state=="graph_circle"){
+
             var params = this.lin_reg(this.data,this.column,this.compared_to);
             var col = this.column;
             var comp = this.compared_to;
-            var dat = this.data.slice(0,this.data.length-1);     
+            var dat = this.data.slice(0,this.data.length-1);   
+
+
+            this.svg.append("text")
+            .attr("class","regression-line")
+            .attr("x",this.svg.attr("width")-horizontal_offset)
+            .attr("y",100)
+            .attr("font-size","20px")
+            .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
+   
 
             if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+              
                 xrange = graphXScale.domain();
                 this.svg.append("line")
                 .attr("class","regression-line")
@@ -351,6 +372,21 @@ function State(svg, map, data, units, width, height) {
                 .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
                 .style("stroke-width","2px");
 
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",130)
+                .attr("font-size","20px")
+                .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
+
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("y",160)
+                .attr("font-size","20px")
+                .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
+
+            if (this.current_state=="graph_circle"){  
                 var errorlines = this.svg.selectAll(".error-line")
                 .data(dat)
                 .enter()
