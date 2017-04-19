@@ -130,9 +130,9 @@ var bubblemap = function(){
     // 120,150,60,175
     hovertool = {
       width: 300,
-      height: 70,
+      height: 120,
       xoffset: 150,
-      yoffset: 120
+      yoffset: 175
     };
 
     generatesHTPaths(hovertool);
@@ -162,15 +162,22 @@ var bubblemap = function(){
 
       hovertool.bodytext3 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
-      .attr("y", 90);
+      .attr("y", 100);
+
+      hovertool.bodytext4 = hovertool.body.append("text").attr("class","htentry")
+      .attr("x", 10)
+      .attr("y", 120);
     }
     
 
-    function mkBox(g, text1, text2,title) {
+    function mkBox(g, text1, text2, text3, text4,title) {
       var dim1 = text1.node().getBBox();
       var dim2 = text2.node().getBBox();
-      g.width = Math.max(dim1.width+30,dim2.width+30,120);
-      g.height = 70+(dim2.height);
+      var dim3 = text3.node().getBBox();
+      var dim4 = text4.node().getBBox();
+      g.width = Math.max(dim1.width+20,dim2.width+20,dim3.width+20,dim4.width+20,110);
+      g.height = 70+(dim2.height+dim3.height+dim4.height);
+      g.yoffset = 120+(dim2.height+dim3.height+dim4.height);
       generatesHTPaths(g);
       title.attr("x",g.width/2);
     }
@@ -180,7 +187,9 @@ var bubblemap = function(){
 
       hovertool.bodytext.text(d.tooltip);
       hovertool.bodytext2.text(d.tooltip2);
-      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.title);
+      hovertool.bodytext3.text(d.tooltip3);
+      hovertool.bodytext4.text(d.tooltip4);
+      mkBox(hovertool,hovertool.bodytext,hovertool.bodytext2,hovertool.bodytext3,hovertool.bodytext4,hovertool.title);
       hovertool.title.text(d.name);
 
       if(y < hovertool.yoffset) {

@@ -59,7 +59,9 @@ function State(svg, map, data, units, width, height) {
 
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
 
         },
@@ -76,7 +78,9 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = "";},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 300
         },
         "layout": {
@@ -92,7 +96,9 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = ""},
+                d.tooltip2 = "";
+                d.tooltip3 = "";
+                d.tooltip4 = ""},
             "tween_duration": 500
         },
         "graph": {
@@ -107,8 +113,10 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
-                d.tooltip = this.column+": "+cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = this.compared_to+": "+cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to];},
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":";
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -123,8 +131,10 @@ function State(svg, map, data, units, width, height) {
                 {style: "stroke-width", f: (d) => 0}
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
-                d.tooltip = this.column+": "+cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = this.compared_to+": "+cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column+":";
+                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to+":"
+                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
     };
