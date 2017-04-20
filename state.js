@@ -133,10 +133,7 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false;
                 d.text = "";
                 d.tooltip = this.column;
                 d.tooltip2 = d3.format(",")( cleanData[d.id][this.column])+" "+ units[0][this.column];
@@ -434,10 +431,7 @@ function State(svg, map, data, units, width, height) {
                 .style("opacity",0.5);           
             }
         }
-
-
     }
-
 
     this.lin_reg = function(d,xvar,yvar){
         // https://en.wikipedia.org/wiki/Simple_linear_regression
