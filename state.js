@@ -373,44 +373,43 @@ function State(svg, map, data, units, width, height) {
             .text(this.compared_to)
 
 
-            var params = this.lin_reg(this.data,this.column,this.compared_to);
-            var col = this.column;
-            var comp = this.compared_to;
-            var dat = this.data.slice(0,this.data.length-1);   
+        var params = this.lin_reg(this.data,this.column,this.compared_to);
+        var col = this.column;
+        var comp = this.compared_to;
+        var dat = this.data.slice(0,this.data.length-1); 
 
+        this.svg.append("text")
+        .attr("class","regression-line")
+        .attr("x", width+horizontal_offset)
+        .attr("y",100)
+        .attr("font-size","20px")
+        .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
+
+
+        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+          
+            xrange = graphXScale.domain();
+            this.svg.append("line")
+            .attr("class","regression-line")
+            .attr("x1",graphXScale(xrange[0]))
+            .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
+            .attr("x2",graphXScale(xrange[1]))
+            .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
+            .style("stroke-width","2px");
 
             this.svg.append("text")
             .attr("class","regression-line")
-            .attr("x", width+horizontal_offset)
-            .attr("y",100)
+            .attr("x",width+horizontal_offset)
+            .attr("y",130)
             .attr("font-size","20px")
-            .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
-   
+            .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
 
-            if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
-              
-                xrange = graphXScale.domain();
-                this.svg.append("line")
-                .attr("class","regression-line")
-                .attr("x1",graphXScale(xrange[0]))
-                .attr("y1",graphYScale(params[1]+params[0]*xrange[0]))
-                .attr("x2",graphXScale(xrange[1]))
-                .attr("y2",graphYScale(params[1]+params[0]*xrange[1]))
-                .style("stroke-width","2px");
-
-                this.svg.append("text")
-                .attr("class","regression-line")
-                .attr("x",width+horizontal_offset)
-                .attr("y",130)
-                .attr("font-size","20px")
-                .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
-
-                this.svg.append("text")
-                .attr("class","regression-line")
-                .attr("x",width+horizontal_offset)
-                .attr("y",160)
-                .attr("font-size","20px")
-                .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
+            this.svg.append("text")
+            .attr("class","regression-line")
+            .attr("x",width+horizontal_offset)
+            .attr("y",160)
+            .attr("font-size","20px")
+            .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
 
             if (this.current_state=="graph_circle"){  
                 var errorlines = this.svg.selectAll(".error-line")
@@ -427,6 +426,42 @@ function State(svg, map, data, units, width, height) {
                 .attr("y2",function(d){return graphYScale(d[comp])})
                 .style("opacity",0.5);           
             }
+        }else{
+            
+            var sig = [];
+            var column = this.column, data = this.data;
+            this.data.columns.forEach((c) => {
+                if(c == column) return;
+                var p = this.lin_reg(data, column, c);
+                if(Math.abs(p[2]) > 0.6) sig.push(c);
+            })
+
+            this.svg.append("text")
+            .attr("class","regression-line")
+            .attr("x",width+horizontal_offset)
+            .attr("y",130)
+            .attr("font-size","20px")
+            .text("Not a significant correlation");  
+
+            if(sig.length == 0) return;
+
+            this.svg.append("text")
+            .attr("class","regression-line")
+            .attr("x",width+horizontal_offset)
+            .attr("y",170)
+            .attr("font-size","20px")
+            .text("Try a y value of:");  
+
+            sig.forEach((v, i) => {
+                this.svg.append("text")
+                .attr("class","regression-line")
+                .attr("x",width+horizontal_offset)
+                .attr("y",200 + i * 25)
+                .style("stroke", "none")
+                .attr("font-size","14px")
+                .text(v); 
+
+            })
         }
     }
 
