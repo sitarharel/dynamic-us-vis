@@ -5,7 +5,12 @@ function State(svg, map, data, units, width, height) {
     this.units = units;
 
 
-    var colors = [d3.hsl(122, 0.39, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(66, 0.7, 0.54), d3.hsl(45, 1, 0.51), d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52), d3.hsl(291, 0.64, 0.42), d3.hsl(262, 0.52, 0.47), d3.hsl(231, 0.48, 0.48), d3.hsl(207, 0.90, 0.54), d3.hsl(199, 0.98, 0.48), d3.hsl(187, 1, 0.42), d3.hsl(174, 1, 0.29)];
+    var colors = [
+        d3.hsl(122, 0.5, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(55, 0.90, 0.5), d3.hsl(45, 1, 0.51),
+        d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52),
+        d3.hsl(291, 0.64, 0.52), d3.hsl(207, 0.90, 0.54),
+        d3.hsl(199, 0.98, 0.48), d3.hsl(192, 0.7, 0.5), d3.hsl(174, 0.76, 0.56)
+    ];
     var color = colors[0];
 
 
@@ -196,7 +201,9 @@ function State(svg, map, data, units, width, height) {
         .append("text")
         .attr("x", (d, i) => {
             var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
-            return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
+            var x = horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff);
+            if (x > width/1.5) return x + x * 0.5;
+            else return x - x * 0.5;
         })
         .attr("y", (d, i) => {
             return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
@@ -205,22 +212,28 @@ function State(svg, map, data, units, width, height) {
         .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
         .style("stroke", "none")
         .append("tspan")
-        .style("font-weight", 400)
+        .style("font-weight", 700)
         .text((d) => d.key + ": ")
         .append("tspan")
-        .style("font-weight", 700)
+        .style("fill", "var(--main-color)")
         .text((d) => d.val + " ")
         .append("tspan")
-        .style("font-weight", 400)
+        .style("fill", "white")
         .text((d) => d.units)
 
-        examine_text.transition().duration(500)
-        .style("opacity", 1);
+        examine_text_g.selectAll("text")
+        .transition()
+        .duration(1000)
+        .style("opacity", 1)
+        .attr("x", (d, i) => {
+            var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
+            return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
+        });
 
         examine_text_g.append("text").text(cleanData[id]["STNAME"])
         .style("fill", color)
         .style("stroke", color)
-        .style("font-size", "20pt")
+        .style("font-size", "42pt")
         .style("text-anchor", "middle")
         .attr("x", horizontal_offset + width/2)
         .attr("y", 100)
