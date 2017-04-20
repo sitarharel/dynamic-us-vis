@@ -477,9 +477,11 @@ function State(svg, map, data, units, width, height) {
                 })
                 .on("mouseover", function(){
                 	d3.select(this).style("cursor", "pointer");
+					d3.select(this).style("fill", "var(--main-color)");
                 })
                 .on("mouseout", function(){
                 	d3.select(this).style("cursor", "default");
+					d3.select(this).style("fill", "var(--text-color)");
                 })
                 .style("opacity", 0)
                 .transition()
