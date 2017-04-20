@@ -176,7 +176,7 @@ var bubblemap = function(){
 
     function mkBox(g, text1, text2, text3, text4, title) {
       var dim1 = text1.node().getBBox();
-      var dim2 = text2.node().getBBox();
+      var dim2 = text2.node().getBBox(); 
       var dim3 = text3.node().getBBox();
       var dim4 = text4.node().getBBox();
       g.width = Math.max(dim1.width+20,dim2.width+20,dim3.width+20,dim4.width+20,110);

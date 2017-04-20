@@ -387,7 +387,7 @@ function State(svg, map, data, units, width, height) {
 
             this.svg.append("text")
             .attr("class","regression-line")
-            .attr("x",this.svg.attr("width")-horizontal_offset)
+            .attr("x", width+horizontal_offset)
             .attr("y",100)
             .attr("font-size","20px")
             .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
@@ -406,14 +406,14 @@ function State(svg, map, data, units, width, height) {
 
                 this.svg.append("text")
                 .attr("class","regression-line")
-                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("x",width+horizontal_offset)
                 .attr("y",130)
                 .attr("font-size","20px")
                 .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
 
                 this.svg.append("text")
                 .attr("class","regression-line")
-                .attr("x",this.svg.attr("width")-horizontal_offset)
+                .attr("x",width+horizontal_offset)
                 .attr("y",160)
                 .attr("font-size","20px")
                 .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
