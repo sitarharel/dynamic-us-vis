@@ -194,7 +194,7 @@ function State(svg, map, data, units, width, height) {
     this.set_examine_state = function(id){
         var data = Object.keys(cleanData[id]).filter((a) => 
             !["SUMLEV", "REGION", "DIVISION", "STATE", "COUNTY", "STNAME"].includes(a));
-        data = data.map((k) => {return {key: k, val: cleanData[id][k], units: units[0][k]}})
+        data = data.map((k) => {return {key: k, val: d3.format(",")(cleanData[id][k]), units: units[0][k]}})
         var cDl = data.length;
 
         examine_text = examine_text_g.selectAll("text").data(data).enter()
