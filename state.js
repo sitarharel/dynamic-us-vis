@@ -197,10 +197,7 @@ function State(svg, map, data, units, width, height) {
         examine_text = examine_text_g.selectAll("text").data(data).enter()
         .append("text")
         .attr("x", (d, i) => {
-            var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
-            var x = horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff);
-            if (x > width/1.5) return x + x * 0.5;
-            else return x - x * 0.5;
+            return (i >= cDl/2 ? 2 * horizontal_offset + width + 20 : -20)
         })
         .attr("y", (d, i) => {
             return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
@@ -224,7 +221,7 @@ function State(svg, map, data, units, width, height) {
         .style("opacity", 1)
         .attr("x", (d, i) => {
             var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
-            return horizontal_offset + (i >= cDl/2 ? width - (300 - xoff): 300 - xoff); 
+            return horizontal_offset + (i >= cDl/2 ? width - (320 - xoff): 320 - xoff); 
         });
 
         examine_text_g.append("text").text(cleanData[id]["STNAME"])
