@@ -101,7 +101,6 @@ var bubblemap = function(){
     }
 
     // The following is code for the hovering tooltip
-
     function generatesHTPaths(ht){
       ht.xoffset = ht.width/2;
       var arrow_offset = ht.width/2, 
@@ -116,34 +115,29 @@ var bubblemap = function(){
         w1 = w-rad;
         h1 = rad;
         h2 = h-rad;
-        ht.bpath = "M"+rad+",0 L" + arrow_l_x + "," + 0 + " " + arrow_m_x + "," + 
-            (-arrow_h) + " " + arrow_r_x + ",0 " + 
-            w1 + ",0 " +
-            "A"+rad+","+rad+" 0 0,1 "+w+","+h1+
-            "L"+w+","+h2+
-            "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
-            "L"+rad+","+h+
-            "A"+rad+","+rad+" 0 0,1 "+0+","+h2+
-            "L0"+ "," + h1 + 
-            "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
-            " Z";
-        ht.tpath = "M"+rad+",0 L" + w1 + ",0 " + 
-        "A"+rad+","+rad+" 0 0,1 "+w+","+h1 +
-        "L"+ w + "," + h2 + 
-        "A"+rad+","+rad+" 0 0,1 "+w1+","+h+
-        "L" + arrow_r_x + "," + h + " " + arrow_m_x + "," + arrow_m_y + " " + arrow_l_x + "," + 
-          h + " "+rad+"," + h + 
-        "A"+rad+","+rad+" 0 0,1 "+"0,"+h2+
-        "L0,"+rad+
-        "A"+rad+","+rad+" 0 0,1 "+rad+",0"+
-          " Z";
+        var o = -ht.transoffset; 
+        //having this offset once and for all fixes all visual hovertool glitches
+        ht.bpath = `M${rad+o},${o} L${arrow_l_x+o},${o} ` + 
+        `${arrow_m_x+o},${o-arrow_h} ${o+arrow_r_x},${o} ${o+w1},${o}` + 
+        `A${rad},${rad} 0 0,1 ${o+w},${o+h1} L${o+w},${o+h2}` + 
+        `A${rad},${rad} 0 0,1 ${o+w1},${o+h} L${o+rad},${o+h}` + 
+        `A${rad},${rad} 0 0,1 ${o},${o+h2} L${o},${o+h1}` +
+        `A${rad},${rad} 0 0,1 ${o+rad},${o} Z`;
+
+        ht.tpath = `M${rad+o},${o} L${o+w1},${o}` + 
+        `A${rad},${rad} 0 0,1 ${o+w},${o+h1} L${o+w},${o+h2}` + 
+        `A${rad},${rad} 0 0,1 ${o+w1},${o+h} L${o+arrow_r_x},${o+h} ` + 
+        `${arrow_m_x+o},${o+arrow_m_y} L${arrow_l_x+o},${o+h} L${o+rad},${o+h}` + 
+        `A${rad},${rad} 0 0,1 ${o},${o+h2} L${o},${o+rad}` +
+        `A${rad},${rad} 0 0,1 ${o+rad},${o} Z`; //es6 rocks.
     }
 
     hovertool = {
       width: 300,
       height: 120,
       xoffset: 150,
-      yoffset: 175
+      yoffset: 175,
+      transoffset: 300
     };
 
     generatesHTPaths(hovertool);
@@ -160,24 +154,24 @@ var bubblemap = function(){
 
       hovertool.title = hovertool.body.append("text").attr("class","httitle")
       .style("text-anchor", "middle")
-      .attr("x", hovertool.width / 2)
-      .attr("y", 20);
+      .attr("x", (hovertool.width / 2) - hovertool.transoffset)
+      .attr("y", 20 - hovertool.transoffset);
 
       hovertool.bodytext = hovertool.body.append("text").attr("class","htentry")
-      .attr("x", 10)
-      .attr("y", 50);
+      .attr("x", 10 - hovertool.transoffset)
+      .attr("y", 50 - hovertool.transoffset);
 
       hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
-      .attr("x", 10)
-      .attr("y", 70);
+      .attr("x", 10 - hovertool.transoffset)
+      .attr("y", 70 - hovertool.transoffset);
 
       hovertool.bodytext3 = hovertool.body.append("text").attr("class","htentry")
-      .attr("x", 10)
-      .attr("y", 100);
+      .attr("x", 10 - hovertool.transoffset)
+      .attr("y", 100 - hovertool.transoffset);
 
       hovertool.bodytext4 = hovertool.body.append("text").attr("class","htentry")
-      .attr("x", 10)
-      .attr("y", 120);
+      .attr("x", 10 - hovertool.transoffset)
+      .attr("y", 120 - hovertool.transoffset);
     }
 
     function mkBox(g, text1, text2, text3, text4, title) {
@@ -189,7 +183,7 @@ var bubblemap = function(){
       g.height = 70+(dim2.height+dim3.height+dim4.height);
       g.yoffset = 86+(dim2.height+dim3.height+dim4.height);
       generatesHTPaths(g);
-      title.attr("x",g.width/2);
+      title.attr("x",g.width/2 - hovertool.transoffset);
     }
     
     function updateHover(d){
@@ -205,13 +199,13 @@ var bubblemap = function(){
       if(y < hovertool.yoffset) {
         hovertool.is_bottom = true;
         hovertool.frame.attr("d", hovertool.bpath);
-        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
-          + "," + (y + (hovertool.yoffset - hovertool.height)) + ")");
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset + hovertool.transoffset)
+          + "," + (y + (hovertool.yoffset - hovertool.height + hovertool.transoffset)) + ")");
       }else{
         hovertool.is_bottom = false;
         hovertool.frame.attr("d", hovertool.tpath);
-        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset)
-          + "," + (y - hovertool.yoffset) + ")");
+        hovertool.body.attr("transform", "translate(" + (x - hovertool.xoffset + hovertool.transoffset)
+          + "," + (y - hovertool.yoffset + hovertool.transoffset) + ")");
       } 
     }
 
