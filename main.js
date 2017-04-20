@@ -87,7 +87,9 @@ d3.queue()
 function disable_axis(){
   var htmlStyles = window.getComputedStyle(document.querySelector("html"));
   var dis = htmlStyles.getPropertyValue("--disable-color");
+  
   select_y.attr("disabled",true)
+  .style("display", "none")
   .style("color",dis)
   .style("border-color",dis);
 }
@@ -97,6 +99,7 @@ function enable_axis(){
   var en = htmlStyles.getPropertyValue("--text-color");
   // SO APPARENTLY SETTING IT AS FALSE WON'T ACTUALLY MAKE IT FALSE, WEIRD
   select_y.attr("disabled",null)
+  .style("display", "inline-block")
   .style("color",en)
   .style("border-color",en);
 }

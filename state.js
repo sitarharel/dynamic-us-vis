@@ -6,7 +6,7 @@ function State(svg, map, data, units, width, height) {
 
 
     var colors = [
-        d3.hsl(122, 0.5, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(55, 0.90, 0.5), d3.hsl(45, 1, 0.51),
+        d3.hsl(122, 0.5, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(45, 1, 0.51),
         d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52),
         d3.hsl(291, 0.64, 0.52), d3.hsl(207, 0.90, 0.54),
         d3.hsl(199, 0.98, 0.48), d3.hsl(192, 0.7, 0.5), d3.hsl(174, 0.76, 0.56)
@@ -58,7 +58,7 @@ function State(svg, map, data, units, width, height) {
 
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -78,7 +78,7 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -97,7 +97,7 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.text = "" + (this.get_data(d.id) + 1) + ". " + d.name ;
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -116,10 +116,10 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = this.column+":";
-                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip3 = this.compared_to+":";
-                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column;
+                d.tooltip2 = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to;
+                d.tooltip4 = d3.format(",")(cleanData[d.id][this.compared_to])+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -138,10 +138,10 @@ function State(svg, map, data, units, width, height) {
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
                 d.text = "";
-                d.tooltip = this.column+":";
-                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip3 = this.compared_to+":"
-                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column;
+                d.tooltip2 = d3.format(",")( cleanData[d.id][this.column])+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to;
+                d.tooltip4 = d3.format(",")(cleanData[d.id][this.compared_to])+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
     };
@@ -194,7 +194,7 @@ function State(svg, map, data, units, width, height) {
     this.set_examine_state = function(id){
         var data = Object.keys(cleanData[id]).filter((a) => 
             !["SUMLEV", "REGION", "DIVISION", "STATE", "COUNTY", "STNAME"].includes(a));
-        data = data.map((k) => {return {key: k, val: cleanData[id][k], units: units[0][k]}})
+        data = data.map((k) => {return {key: k, val: d3.format(",")(cleanData[id][k]), units: units[0][k]}})
         var cDl = data.length;
 
         examine_text = examine_text_g.selectAll("text").data(data).enter()
@@ -524,7 +524,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",")(opacityScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
@@ -559,7 +559,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",")(areaScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
