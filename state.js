@@ -383,7 +383,10 @@ function State(svg, map, data, units, width, height) {
         .attr("x", width+horizontal_offset)
         .attr("y",100)
         .attr("font-size","20px")
-        .text("Pearson Coefficient: "+ parseFloat(params[2]).toFixed(2));
+        .text("Pearson Coefficient: ")
+        .append("tspan")
+        .style("stroke", "none")
+        .text(parseFloat(params[2]).toFixed(2));
 
 
         if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
@@ -402,14 +405,20 @@ function State(svg, map, data, units, width, height) {
             .attr("x",width+horizontal_offset)
             .attr("y",130)
             .attr("font-size","20px")
-            .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
+            .text("Slope: ")
+	        .append("tspan")
+	        .style("stroke", "none")
+	        .text(parseFloat(params[0]).toFixed(5));  
 
             this.svg.append("text")
             .attr("class","regression-line")
             .attr("x",width+horizontal_offset)
             .attr("y",160)
             .attr("font-size","20px")
-            .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
+            .text("Y-Intercept: ")
+	        .append("tspan")
+	        .style("stroke", "none")
+	        .text(parseFloat(params[1]).toFixed(2)); 
 
             if (this.current_state=="graph_circle"){  
                 var errorlines = this.svg.selectAll(".error-line")
@@ -441,6 +450,7 @@ function State(svg, map, data, units, width, height) {
             .attr("x",width+horizontal_offset)
             .attr("y",130)
             .attr("font-size","20px")
+            .style("stroke", "none")
             .text("Not a significant correlation");  
 
             if(sig.length == 0) return;
@@ -452,6 +462,7 @@ function State(svg, map, data, units, width, height) {
             .attr("font-size","20px")
             .text("Try a y value of:");  
 
+            var _this = this;
             sig.forEach((v, i) => {
                 this.svg.append("text")
                 .attr("class","regression-line")
@@ -459,7 +470,21 @@ function State(svg, map, data, units, width, height) {
                 .attr("y",200 + i * 25)
                 .style("stroke", "none")
                 .attr("font-size","14px")
-                .text(v); 
+                .text(v)
+                .on("click", function(){
+                	d3.select("#y_axis").property("value", v);
+      				_this.set_compared_to_data(v);
+                })
+                .on("mouseover", function(){
+                	d3.select(this).style("cursor", "pointer");
+                })
+                .on("mouseout", function(){
+                	d3.select(this).style("cursor", "default");
+                })
+                .style("opacity", 0)
+                .transition()
+                .duration(i * 100)
+                .style("opacity", 1);
 
             })
         }
