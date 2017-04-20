@@ -180,7 +180,7 @@ var bubblemap = function(){
       .attr("y", 120);
     }
 
-    function mkBox(g, text1, text2, text3, text4,title) {
+    function mkBox(g, text1, text2, text3, text4, title) {
       var dim1 = text1.node().getBBox();
       var dim2 = text2.node().getBBox();
       var dim3 = text3.node().getBBox();
