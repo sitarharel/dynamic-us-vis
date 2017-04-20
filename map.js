@@ -1,19 +1,16 @@
 
 var bubblemap = function(){
-
   function bm(){
+    // initialize the node simulation
     simulation = d3.forceSimulation()
     .force("collision", d3.forceCollide(d => d.no_clip ? 0 : Math.sqrt(d.area/Math.PI) ))
     .force("x_pos", d3.forceX(d => d.root[0]))
     .force("y_pos", d3.forceY(d => d.root[1]))
 
-
+    // load default data
     nodedata = gennodes(states);
 
-    node = svg
-      .selectAll(".node")
-      .data(nodedata);
-
+    node = svg.selectAll(".node").data(nodedata);
     node.exit().remove();
 
     node_vis = node
@@ -31,10 +28,8 @@ var bubblemap = function(){
       click_handler(d);
     })
     .on("mouseover", function(d){ 
-      // console.log(if()d3.event)
       if(!d.no_hover && !d3.event.buttons){
         hovertool.body.remove().exit();
-        // hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
         createHT(hovertool);
         hovertool.body.style("visibility", "visible")
         d.sw = 2;
@@ -58,10 +53,10 @@ var bubblemap = function(){
     simulation.nodes(nodedata).on("tick", on_tick);
     simulation.force("x_pos").strength((d) => 0.08);
     simulation.force("y_pos").strength((d) => 0.08);
-    // simulation.alphaDecay(0.1);
     simulation.velocityDecay(0.4);
     simulation.alpha(1).restart();
-    setInterval(on_tick, 750);
+
+    setInterval(on_tick, 750); // this is just in case we have weird stuff changing
 
     // this gets called every tick. used to do force stuff but also for reactive updating
     function on_tick() {
@@ -72,15 +67,10 @@ var bubblemap = function(){
       // set the node's location. (node paths should be centered around d.geo_origin_area)
       node_vis.attr("transform", function(d) { 
         var scale = Math.sqrt(d.area/d.origin_area);
-        // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
-        return "translate(" + d.x + ", " + d.y + ") scale("+ scale +") translate(" + (-d.geo_origin[0]) + ", " + (-d.geo_origin[1]) + ")";
+        return "translate(" + d.x + ", " + d.y + ") scale("+ scale +
+          ") translate(" + (-d.geo_origin[0]) + ", " + (-d.geo_origin[1]) + ")";
       })
     .style("stroke-width", function(d) { 
-        // if(d.style.stroke_width >= 2) console.log(d.name);
-        // if(d.bound_scale) scale = Math.sqrt(d.area/d.origin_area);
-        // if(d.style.stroke_width - d.psw != 0) console.log(d.name + ": " + d.style.stroke_width - d.psw); 
-        // d.psw = d.stroke_width;
-        // if(d.sw) return d.sw / Math.sqrt(d.area/d.origin_area)
         return (d.style.stroke_width + d.sw) / Math.sqrt(d.area/d.origin_area);
       });
 
@@ -237,6 +227,7 @@ var bubblemap = function(){
     return bm;
   }
 
+  /* set the svg that the visualization will happen on. svg should have a viewbox. */
   bm.svg = function(s, w, h){
     if(!s) return svg;
     svg = s;
@@ -263,18 +254,26 @@ var bubblemap = function(){
     return bm;
   }
 
+  /* bind a function f to be called on element click*/
   bm.onClick = function(f){
     if(!f) return click_handler;
     click_handler = f;
     return bm;
   }
 
+  /* transitions the shape of the node according to f */
   bm.shape = function(f, duration){
     node_vis.transition().duration(duration).attr("d", f);
     simulation.alphaTarget(1).restart();
     return bm;
   }
 
+  /* tween enables concurrent attribute tweening of data, not just styles or 
+   * DOM attributes. This is done by passing in an array of attributes to be 
+   * tweened, structured as follows: 
+   * [{style: "fill-opacity", f: (d) => 1 }, {attr: "area", f: (d) => d.origin_area}]
+   * custom interpolators can also be passed in to each object as interpolator: ...
+   */
   bm.tween = function(attrs, duration){
     simulation.alphaTarget(1).restart();
     if(!Array.isArray(attrs)) attrs = [attrs];
@@ -285,8 +284,7 @@ var bubblemap = function(){
         });
       }
     }
-    node.enter() // change to node_vis
-    .transition().duration(duration)
+    node.enter().transition().duration(duration)
     .tween("datum", tween_func);
 
     return bm;
@@ -313,17 +311,18 @@ var bubblemap = function(){
     var center = pathGenerator.centroid(d);
 
     return {
-      circle_path: mergablepath(d, Math.sqrt(pathGenerator.area(d)/Math.PI), center[0], center[1]), // a mergable circle of the path
-      area: pathGenerator.area(d), 
-      origin_area: pathGenerator.area(d),
-      geo_origin_area: pathGenerator.area(d),
+      circle_path: mergablepath(d, Math.sqrt(pathGenerator.area(d)/Math.PI), 
+        center[0], center[1]), // a mergable circle of the path
+      area: pathGenerator.area(d), // area to scale to
+      origin_area: pathGenerator.area(d), // area used for scaling
+      geo_origin_area: pathGenerator.area(d), // constant area of the state
       bound_origin_area: bound_size,
       bound_scale: false, // whether to scale state based on bound size or path area
       x: center[0], 
       y: center[1], 
       tooltip: "This is a tooltip",
-      name: "",
-      text: "",
+      name: "", // name of the node - in states it's just "California" etc..
+      text: "", // text to be displayed under the node
       root: center, // roots are the locations that objects are attracted to
       geo_origin: center, // geo_origin is the offset value to the center of the shape in the path
                           // ex: a square from -5,-5 to 15,15 would have geo_origin = [5, 5]
@@ -331,25 +330,16 @@ var bubblemap = function(){
       no_clip: false, // whether or not it should collide with others
       no_drag: false, // whether or not user should be able to interact with nodes
       state_shape: pathGenerator(d), // shape of the state
-      origin_shape: d,
-      no_hover: false,
+      no_hover: false, // whether or not to show hover tool
       psw: 0,
       sw: 0,
       style: {
-        fill: "none",
-        stroke: "white",
+        fill: "none", // anything in style will automatically be converted to style
+        stroke: "white", // attributes in the html. underscores are replaced with hyphens
         stroke_width: 0,
         fill_opacity: 1
       }
     }}).filter(d => d.x && d.id != 11);
-  }
-
-  function circlepath(r, x, y){
-    x = x || 0;
-    y = y || 0;
-    var p = d3.path();
-    p.arc(x, y, r, 0, Math.PI*2);
-    return p.toString();
   }
 
   /* This generates a path for a circle that is actually a set of lines with the
@@ -360,7 +350,6 @@ var bubblemap = function(){
     y = y || 0;
 
     var len = ((pathGenerator(topo) || "").match(/L|M/g) || []).length
-    // if(topo.id == 2) console.log(topo.id + ": " + len);
     var angleoffset = 2 * Math.PI / len;
     var angle = 0;
     var res = "M";
@@ -374,6 +363,7 @@ var bubblemap = function(){
     return res;
   }
 
+  /* The following functions handle dragging */
   function dragstarted(d) {
     if(d.no_drag) return;
     hovertool.body.style("visibility", "hidden");
