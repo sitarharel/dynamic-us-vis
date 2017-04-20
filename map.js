@@ -169,7 +169,8 @@ var bubblemap = function(){
 
       hovertool.bodytext2 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
-      .attr("y", 70);
+      .attr("y", 70)
+      .style("stroke", "none");
 
       hovertool.bodytext3 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
@@ -177,7 +178,8 @@ var bubblemap = function(){
 
       hovertool.bodytext4 = hovertool.body.append("text").attr("class","htentry")
       .attr("x", 10)
-      .attr("y", 120);
+      .attr("y", 120)
+      .style("stroke", "none");
     }
 
     function mkBox(g, text1, text2, text3, text4,title) {

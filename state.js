@@ -58,7 +58,7 @@ function State(svg, map, data, units, width, height) {
 
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -78,7 +78,7 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -97,7 +97,7 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
                 d.text = "" + (this.get_data(d.id) + 1) + ". " + d.name ;
-                d.tooltip = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
@@ -117,9 +117,9 @@ function State(svg, map, data, units, width, height) {
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = this.column+":";
-                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
+                d.tooltip2 = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip3 = this.compared_to+":";
-                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip4 = d3.format(",")(cleanData[d.id][this.compared_to])+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
         "graph_circle": {
@@ -138,10 +138,10 @@ function State(svg, map, data, units, width, height) {
                 d.tooltip2 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; 
                 d.text = "";
-                d.tooltip = this.column+":";
-                d.tooltip2 = cleanData[d.id][this.column]+" "+ units[0][this.column];
-                d.tooltip3 = this.compared_to+":"
-                d.tooltip4 = cleanData[d.id][this.compared_to]+" "+ units[0][this.compared_to]},
+                d.tooltip = this.column;
+                d.tooltip2 = d3.format(",")( cleanData[d.id][this.column])+" "+ units[0][this.column];
+                d.tooltip3 = this.compared_to;
+                d.tooltip4 = d3.format(",")(cleanData[d.id][this.compared_to])+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
     };
@@ -406,14 +406,14 @@ function State(svg, map, data, units, width, height) {
 
                 this.svg.append("text")
                 .attr("class","regression-line")
-                .attr("x",this.svg.attr("width")-horizontal_offset)
+            	.attr("x",this.svg.attr("width")-horizontal_offset)
                 .attr("y",130)
                 .attr("font-size","20px")
                 .text("Slope: "+ parseFloat(params[0]).toFixed(5));  
 
                 this.svg.append("text")
                 .attr("class","regression-line")
-                .attr("x",this.svg.attr("width")-horizontal_offset)
+            	.attr("x",this.svg.attr("width")-horizontal_offset)
                 .attr("y",160)
                 .attr("font-size","20px")
                 .text("Y-Intercept: "+ parseFloat(params[1]).toFixed(2)); 
@@ -524,7 +524,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 80)
             .attr("y", function(d, i){ return label_start + i * ls_h + ls_h - 5;})
-            .text(function(d, i){ return d3.format(",.2f")(opacityScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",")(opacityScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
@@ -559,7 +559,7 @@ function State(svg, map, data, units, width, height) {
             .attr("class", "legendLabel")
             .attr("x", 150)
             .attr("y", function(d, i){ prev_height += Math.sqrt(d / Math.PI)*2 + 20; return label_start/4 + prev_height;})
-            .text(function(d, i){ return d3.format(",.2f")(areaScale.invert(d)); })
+            .text(function(d, i){ return d3.format(",")(areaScale.invert(d)); })
             .style("opacity", 0)
             .style("stroke", "none")
             .transition()
