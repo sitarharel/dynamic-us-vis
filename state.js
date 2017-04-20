@@ -4,7 +4,6 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
-
     var colors = [
         d3.hsl(122, 0.5, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(45, 1, 0.51),
         d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52),
