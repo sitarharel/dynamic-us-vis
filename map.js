@@ -30,8 +30,9 @@ var bubblemap = function(){
       hovertool.body.style("visibility", "hidden")
       click_handler(d);
     })
-    .on("mouseover",function(d){ 
-      if(!d.no_hover){
+    .on("mouseover", function(d){ 
+      // console.log(if()d3.event)
+      if(!d.no_hover && !d3.event.buttons){
         hovertool.body.remove().exit();
         // hovertool = {width: 200, height: 100, xoffset: 60, yoffset: 120};
         createHT(hovertool);
