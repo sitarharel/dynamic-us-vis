@@ -388,8 +388,8 @@ function State(svg, map, data, units, width, height) {
         .style("stroke", "none")
         .text(parseFloat(params[2]).toFixed(2));
 
-
-        if (Math.abs(params[2])>=0.6){ // pearson correlation threshold = +/- 0.6
+        var pearson_threshold = 0.5;
+        if (Math.abs(params[2])>=pearson_threshold){ // pearson correlation threshold = +/- 0.6
           
             xrange = graphXScale.domain();
             this.svg.append("line")
@@ -406,9 +406,9 @@ function State(svg, map, data, units, width, height) {
             .attr("y",130)
             .attr("font-size","20px")
             .text("Slope: ")
-	        .append("tspan")
-	        .style("stroke", "none")
-	        .text(parseFloat(params[0]).toFixed(5));  
+            .append("tspan")
+            .style("stroke", "none")
+            .text(parseFloat(params[0]).toFixed(5));  
 
             this.svg.append("text")
             .attr("class","regression-line")
@@ -416,9 +416,9 @@ function State(svg, map, data, units, width, height) {
             .attr("y",160)
             .attr("font-size","20px")
             .text("Y-Intercept: ")
-	        .append("tspan")
-	        .style("stroke", "none")
-	        .text(parseFloat(params[1]).toFixed(2)); 
+            .append("tspan")
+            .style("stroke", "none")
+            .text(parseFloat(params[1]).toFixed(2)); 
 
             if (this.current_state=="graph_circle"){  
                 var errorlines = this.svg.selectAll(".error-line")
@@ -439,10 +439,10 @@ function State(svg, map, data, units, width, height) {
             
             var sig = [];
             var column = this.column, data = this.data;
-            this.data.columns.forEach((c) => {
+            this.data.columns.slice(7).forEach((c) => {
                 if(c == column) return;
                 var p = this.lin_reg(data, column, c);
-                if(Math.abs(p[2]) > 0.6) sig.push(c);
+                if(Math.abs(p[2]) > pearson_threshold) sig.push(c);
             })
 
             this.svg.append("text")
