@@ -116,9 +116,9 @@ function State(svg, map, data, units, width, height) {
             ],
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
-                d.tooltip = this.column+":";
+                d.tooltip = this.column;
                 d.tooltip2 = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
-                d.tooltip3 = this.compared_to+":";
+                d.tooltip3 = this.compared_to;
                 d.tooltip4 = d3.format(",")(cleanData[d.id][this.compared_to])+" "+ units[0][this.compared_to]},
             "tween_duration": 500
         },
