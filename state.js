@@ -225,7 +225,7 @@ function State(svg, map, data, units, width, height) {
         .duration(1000)
         .style("opacity", 1)
         .attr("x", (d, i) => {
-            var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*100;
+            var xoff = Math.sin(Math.PI * 2*(i >= cDl/2 ? i - cDl/2: i)/cDl)*120;
             return horizontal_offset + (i >= cDl/2 ? width - (320 - xoff): 320 - xoff); 
         });
 
@@ -476,7 +476,7 @@ function State(svg, map, data, units, width, height) {
             .attr("x",width+horizontal_offset)
             .attr("y",170)
             .attr("font-size","20px")
-            .text("Try a y value of:");  
+            .text("Try comparing to:");  
 
             var _this = this;
             sig.forEach((v, i) => {
