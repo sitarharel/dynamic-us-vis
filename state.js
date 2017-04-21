@@ -22,6 +22,7 @@ function State(svg, map, data, units, width, height) {
     var locationColumns = 6;
     var locationRows = 9;
     var locationCoordinates = [];
+
     // Break the svg down into squares with locationColumns columns and locationRows rows
     for(var y = height * 0.1; y <= height * 0.9; y += height * 0.9 / locationRows) {
         for(var x = width * 0.1; x <= width * 0.9; x += width * 0.9 / locationColumns) {
@@ -404,7 +405,7 @@ function State(svg, map, data, units, width, height) {
         .text(parseFloat(params[2]).toFixed(2));
 
         var pearson_threshold = 0.5;
-        if (Math.abs(params[2])>=pearson_threshold){ // pearson correlation threshold = +/- 0.6
+        if (Math.abs(params[2])>=pearson_threshold){ // pearson correlation threshold = +/- 0.5
           
             xrange = graphXScale.domain();
             this.svg.append("line")

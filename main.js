@@ -111,6 +111,7 @@ function enable_axis(){
   .style("border-color",en);
 }
 
+// Toggles info box (instead of using JQuery)
 function maxHeightSlide() {
     if(info_box.style.maxHeight !== "400px") {
       info_box.style.maxHeight = "400px";
