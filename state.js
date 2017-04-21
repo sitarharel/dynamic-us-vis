@@ -51,6 +51,9 @@ function State(svg, map, data, units, width, height) {
             "tween": [
                 {style: "fill-opacity", f: (d) => 1 },
                 {attr: "area", f: (d) => d.origin_area},
+                {attr: "origin_area", f: (d) => d.geo_origin_area},
+                {attr: "origin_x", f: (d) => d.geo_origin[0]},
+                {attr: "origin_y", f: (d) => d.geo_origin[1]},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => {
                     var c = d3.hsl(color.toString());
                     c.l = opacityScale(this.get_data(d.id));
@@ -58,7 +61,7 @@ function State(svg, map, data, units, width, height) {
                 } },
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
@@ -74,10 +77,12 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill-opacity", f: (d) => 0.8},
                 {attr: "area", f: (d) => areaScale(+this.get_data(d.id))},
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
+                {attr: "origin_x", f: (d) => d.geo_origin[0]},
+                {attr: "origin_y", f: (d) => d.geo_origin[1]},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 3}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = false; d.no_hover = false; 
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
@@ -92,11 +97,13 @@ function State(svg, map, data, units, width, height) {
             "tween": [
                 {attr: "area", f: (d) => width * 2 },
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
+                {attr: "origin_x", f: (d) => d.bound_origin[0]},
+                {attr: "origin_y", f: (d) => d.bound_origin[1]},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "fill-opacity", f: (d) => 1}, 
                 {style: "stroke-width", f: (d) => 1}
             ],
-            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.bound_scale = true; d.no_hover = false; 
+            "forEach": (d) => {d.no_clip = false; d.no_drag = false; d.no_hover = false; 
                 d.text = "" + (this.get_data(d.id) + 1) + ". " + d.name ;
                 d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
                 d.tooltip2 = "";
@@ -112,10 +119,12 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill-opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => width / 2 },
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
+                {attr: "origin_x", f: (d) => d.geo_origin[0]},
+                {attr: "origin_y", f: (d) => d.geo_origin[1]},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = this.column;
                 d.tooltip2 = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
@@ -131,10 +140,12 @@ function State(svg, map, data, units, width, height) {
                 {style: "fill-opacity", f: (d) => 0.8}, 
                 {attr: "area", f: (d) => 50},
                 {attr: "origin_area", f: (d) => d.geo_origin_area},
+                {attr: "origin_x", f: (d) => d.geo_origin[0]},
+                {attr: "origin_y", f: (d) => d.geo_origin[1]},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => 0}
             ],
-            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false;
+            "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.no_hover = false;
                 d.text = "";
                 d.tooltip = this.column;
                 d.tooltip2 = d3.format(",")( cleanData[d.id][this.column])+" "+ units[0][this.column];
@@ -205,7 +216,7 @@ function State(svg, map, data, units, width, height) {
             return (i >= cDl/2 ? 2 * horizontal_offset + width + 20 : -20)
         })
         .attr("y", (d, i) => {
-            return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 8
+            return vertical_offset + (i >= cDl/2 ? i - cDl/2: i) * 30 + cDl * 30 / 10
         })
         .attr("dy", "1em")
         .style("text-anchor", (d, i) => i >= cDl/2 ? "start" : "end")
@@ -253,11 +264,13 @@ function State(svg, map, data, units, width, height) {
                     if(d.id == id) return 75000;
                     return 0;
                 }},
+                {attr: "origin_x", f: (d) => d.bound_origin[0]},
+                {attr: "origin_y", f: (d) => d.bound_origin[1]},
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
-            ], 500)
-            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.bound_scale = true; d.no_hover = true; d.text = "";})
+            ], 800)
+            .forEach((d) => {d.no_clip = true; d.no_drag = false; d.no_hover = true; d.text = "";})
             .onClick((d) => state.set_map_state(this.current_state));
 
         this.remove_axises();

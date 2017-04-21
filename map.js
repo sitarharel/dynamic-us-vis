@@ -68,7 +68,7 @@ var bubblemap = function(){
       node_vis.attr("transform", function(d) { 
         var scale = Math.sqrt(d.area/d.origin_area);
         return "translate(" + d.x + ", " + d.y + ") scale("+ scale +
-          ") translate(" + (-d.geo_origin[0]) + ", " + (-d.geo_origin[1]) + ")";
+          ") translate(" + (-d.origin_x) + ", " + (-d.origin_y) + ")";
       })
     .style("stroke-width", function(d) { 
         return (d.style.stroke_width + d.sw) / Math.sqrt(d.area/d.origin_area);
@@ -308,6 +308,8 @@ var bubblemap = function(){
     return topo.features.map((d) => { 
     var bounds = pathGenerator.bounds(d);
     var bound_size = (bounds[1][0]-bounds[0][0]) * (bounds[1][1]-bounds[0][1])
+    var bound_center = [bounds[0][0] + (bounds[1][0]-bounds[0][0])/2,
+                        bounds[0][1] + (bounds[1][1]-bounds[0][1])/2]
     var center = pathGenerator.centroid(d);
 
     return {
@@ -317,21 +319,23 @@ var bubblemap = function(){
       origin_area: pathGenerator.area(d), // area used for scaling
       geo_origin_area: pathGenerator.area(d), // constant area of the state
       bound_origin_area: bound_size,
-      bound_scale: false, // whether to scale state based on bound size or path area
       x: center[0], 
       y: center[1], 
       tooltip: "This is a tooltip",
       name: "", // name of the node - in states it's just "California" etc..
       text: "", // text to be displayed under the node
       root: center, // roots are the locations that objects are attracted to
+      origin_x: center[0], //shape offset x value
+      origin_y: center[1], //shape offset y value
       geo_origin: center, // geo_origin is the offset value to the center of the shape in the path
                           // ex: a square from -5,-5 to 15,15 would have geo_origin = [5, 5]
+      bound_origin: bound_center,
       id: d.id, // id - usually the FIPS code for each state
       no_clip: false, // whether or not it should collide with others
       no_drag: false, // whether or not user should be able to interact with nodes
       state_shape: pathGenerator(d), // shape of the state
       no_hover: false, // whether or not to show hover tool
-      psw: 0,
+      bound_loc: true,
       sw: 0,
       style: {
         fill: "none", // anything in style will automatically be converted to style
