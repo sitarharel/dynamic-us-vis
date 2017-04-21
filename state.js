@@ -269,7 +269,7 @@ function State(svg, map, data, units, width, height) {
                 {attr: "origin_area", f: (d) => d.bound_origin_area},
                 {style: "fill", interpolator: d3.interpolateRgb, f: (d) => color},
                 {style: "stroke-width", f: (d) => d.id == id ? 2 : 0}
-            ], 800)
+            ], 650)
             .forEach((d) => {d.no_clip = true; d.no_drag = false; d.no_hover = true; d.text = "";})
             .onClick((d) => state.set_map_state(this.current_state));
 
