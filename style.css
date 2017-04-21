@@ -3,7 +3,7 @@
 :root{
   /*Can manipulate it in js by:
   document.documentElement.style.setProperty('--main-color',"#6c0")*/
-    --main-color:#73caff;
+    --main-color: #bb36d3;
     --text-color:#ffffff;
     --background:#3b4951;
     --disable-color:#727272;

@@ -4,7 +4,7 @@ function State(svg, map, data, units, width, height) {
     this.data = data;
     this.units = units;
 
-
+    // Map colors
     var colors = [
         d3.hsl(122, 0.5, 0.49), d3.hsl(88, 0.5, 0.53), d3.hsl(45, 1, 0.51),
         d3.hsl(36, 1, 0.5), d3.hsl(14, 1, 0.57), d3.hsl(4, 0.9, 0.58), d3.hsl(340, 0.82, 0.52),
@@ -13,12 +13,12 @@ function State(svg, map, data, units, width, height) {
     ];
     var color = colors[0];
 
-
     var vb = svg.attr('viewBox').split(/\s+|,/);
     width = width ? width : +vb[2];
     height = height ? height : +vb[3];
     var horizontal_offset = (+vb[2] - width)/2;
     var vertical_offset = (+vb[3] - height)/2;
+
     var locationColumns = 6;
     var locationRows = 9;
     var locationCoordinates = [];
@@ -40,6 +40,8 @@ function State(svg, map, data, units, width, height) {
     var cleanData = data.reduce((a,x) => {a[+x.STATE] = x; return a},[]);
     map.forEach((d) => d.name = cleanData[d.id].STNAME);
 
+    // Mapping between bubblemap states and thier corresponding metadata
+    // eg. shape, location, tween
     var state_mapping = {
         "default": {
             "shape": (d) => d.state_shape,
@@ -55,7 +57,6 @@ function State(svg, map, data, units, width, height) {
                 } },
                 {style: "stroke-width", f: (d) => 0}
             ],
-
             "forEach": (d) => {d.no_clip = true; d.no_drag = true; d.bound_scale = false; d.no_hover = false; 
                 d.text = "";
                 d.tooltip = d3.format(",")(cleanData[d.id][this.column])+" "+ units[0][this.column];
@@ -63,7 +64,6 @@ function State(svg, map, data, units, width, height) {
                 d.tooltip3 = "";
                 d.tooltip4 = ""},
             "tween_duration": 500
-
         },
         "circle": {
             "shape": (d) => d.circle_path,
@@ -152,6 +152,7 @@ function State(svg, map, data, units, width, height) {
     var columnData = {};
     var comparedToData = {};
 
+    // Set map's current state
     this.set_map_state = function(state_name, options) {
         // Set the current state
         this.remove_examine_state();
@@ -180,14 +181,17 @@ function State(svg, map, data, units, width, height) {
         // Draw or remove axes as necessary
         if (this.current_state == "graph" || this.current_state == "graph_circle") this.draw_axises();
         else this.remove_axises();
-   
     }
 
+    // Remove examine texts for when the user transitions to another state
     this.remove_examine_state = function(){
         if(examine_text) examine_text.remove().exit();
         examine_text_g.selectAll("text").remove();
     }
 
+    // Set examine state: move the state that we are examining (fips code == id) to the middle of the svg
+    // and move all other states out of the way. Display all data pertaining to that state on the left
+    // and right
     this.set_examine_state = function(id){
         var data = Object.keys(cleanData[id]).filter((a) => 
             !["SUMLEV", "REGION", "DIVISION", "STATE", "COUNTY", "STNAME"].includes(a));
@@ -259,6 +263,7 @@ function State(svg, map, data, units, width, height) {
         this.remove_scale();
     }
 
+    // Get a color from the HSL color array based on the index. 
     this.get_color = function(n) {
         return colors[n % colors.length];
     }
@@ -269,17 +274,18 @@ function State(svg, map, data, units, width, height) {
         return [extent[0] - range * 0.05, extent[1] + range * 0.05];
     }
 
+    // Set the new domains for the scales that we are using based on the current columnData's
+    // extent. For graph scale, the extent is padded by 5% on both ends
     this.set_domains = function() {
         var extent = d3.extent(Object.values(columnData)) || [0, 1];
         areaScale = d3.scaleLinear().range([2500, 12500]).domain(extent);
         opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain(extent);
-        graphXScale = d3.scaleLinear().range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1]).domain(getExtendedDomain(extent));
-
-        if (this.current_state == "layout")
-            opacityScale = d3.scaleLinear().range([0.8, 0.4]).domain([0, Object.values(columnData).length]);
-
+        graphXScale = d3.scaleLinear()
+        	.range([horizontal_offset + width * 0.1, horizontal_offset + width - width * 0.1])
+        	.domain(getExtendedDomain(extent));
     }
 
+    // Returns an array of fips code sorted by the values in columnData in ascending order.
     function sortStateByValue() {
         var keys = [];
         for(var key in columnData){
@@ -321,10 +327,14 @@ function State(svg, map, data, units, width, height) {
         this.set_map_state(this.current_state, options);
     }
 
+    // Retrieve the data from this.data for the column corresponding to this.compared_to
     this.get_compared_to_data = function(state_fips) {
         return comparedToData[+state_fips];
     }
 
+    // Set this.compared_to, update comparedToData object and create a new scale for
+    // mapping the compared_to data values to an appropriate y coordinate, padded the same
+    // way as x coordinate
     this.set_compared_to_data = function(column) {
         this.compared_to = column;
         comparedToData = {};
@@ -336,15 +346,20 @@ function State(svg, map, data, units, width, height) {
             .range([vertical_offset + height - height * 0.1, vertical_offset + height * 0.1])
             .domain(getExtendedDomain(extent));
 
+		// Redraw the map with the same state but new data in case the current state
+		// is graph/dotted graph and should be using new data instead
         this.set_map_state(this.current_state);
     }
 
+    // Remove all graph related components from svg
     this.remove_axises = function() {
         this.svg.selectAll(".graph-axis").remove();
         this.svg.selectAll(".regression-line").remove();
         this.svg.selectAll(".error-line").remove();
     }
 
+    // Add axises for graph modes, along with linear regression line, error lines for when
+    // the graph is a dotted graph and suggested correlation if the values meet the threshold
     this.draw_axises = function() {
         this.remove_axises();
         this.svg.append("g")
@@ -492,6 +507,8 @@ function State(svg, map, data, units, width, height) {
         }
     }
 
+    // Calculate linear regression for given datasets. Returns fitted slope, fitted
+    // intercept and pearson coefficient
     this.lin_reg = function(d,xvar,yvar){
         // https://en.wikipedia.org/wiki/Simple_linear_regression
         var datalength = d.length-1;
@@ -522,12 +539,14 @@ function State(svg, map, data, units, width, height) {
         return [fitted_slope,fitted_intercept,pearson];
     }
 
+    // Remove all scales and legends for map/circlce map
     this.remove_scale = function() {
         svg.selectAll("g.legend")
         .remove()
         .exit()
     }
 
+    // Add appropriate scales and legends for the current map state
     this.update_scale = function() {
         var data = [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8];
         if (this.current_state == "circle") {
@@ -618,26 +637,6 @@ function State(svg, map, data, units, width, height) {
             .transition()
             .duration(function(d, i){ return 500 + 250 * i})
             .style("opacity", 1);
-        } else if (this.current_state == "layout") {
-            // var keys = sortStateByValue();
-            // var stateNames = {};
-            // this.data.forEach(function(s){ stateNames[s.STATE] = s.STNAME; });
-
-            // keys.forEach(function(d, i){
-            //     var loc = locationScale(i);
-
-            //     legend.append("text")
-            //     .attr("x", loc[0])
-            //     .attr("y", loc[1] + 50)
-            //     .text((i+1) + ". " + stateNames[d])
-            //     .style("stroke", "none")
-            //     .style("text-anchor", "middle")
-            //     .style("font-size", "16px")
-            //     .style("opacity", 0)
-            //     .transition()
-            //     .duration(500 + 50 * i)
-            //     .style("opacity", 1);
-            // });
         }
     }
 

@@ -24,80 +24,87 @@ d3.queue()
     map = bubblemap().svg(svg, 1000, 800).topology(us)();
     state = new State(svg, map, pop, units, 1000, 800);
 
-    document.documentElement.style.setProperty('--main-color',state.get_color(
-          Object.keys(state.data[0]).indexOf(state.column)));
+    // Set main color to data's color
+    document.documentElement.style
+        .setProperty('--main-color', state.get_color(Object.keys(state.data[0]).indexOf(state.column)));
 
-
+    // Add toolbar to the body
     var tools = d3.select("body").append("div").attr("class", "toolbar");
 
+    // Create a select menu with data columns as options 
+    // Set state's current column to new data and main color to new data's color
+    // when selected option has changed
     select_x
-      .on("change", function(){ 
-        state.set_data(d3.select(this).property("value")); 
-       document.documentElement.style.setProperty('--main-color',state.get_color(
-          Object.keys(state.data[0]).indexOf(state.column)));
-     })
-      .selectAll("option")
-      .data(Object.keys(pop[0]).slice(7))
-      .enter()
-      .append("option")
-      .text(function(d){ return d; });
+        .on("change", function(){ 
+            state.set_data(d3.select(this).property("value")); 
+            document.documentElement.style
+                .setProperty('--main-color',state.get_color(Object.keys(state.data[0]).indexOf(state.column)));
+        })
+        .selectAll("option")
+        .data(Object.keys(pop[0]).slice(7))
+        .enter()
+        .append("option")
+        .text(function(d){ return d; });
 
+    // Create a select menu with data columns as options 
+    // Set state's compared_to column to new data and main color to new data's color
+    // when selected option has changed
+    // Default to STARBUCKS data
     select_y
-      .on("change", function(){state.set_compared_to_data(d3.select(this).property("value")); })
-      .selectAll("option")
-      .data(Object.keys(pop[0]).slice(7))
-      .enter()
-      .append("option")
-      .text(function(d){ return d; })
-      .property("selected", function(d){ return d === "STARBUCKS"; });
-      disable_axis();
+        .on("change", function(){
+            state.set_compared_to_data(d3.select(this).property("value"));
+        })
+        .selectAll("option")
+        .data(Object.keys(pop[0]).slice(7))
+        .enter()
+        .append("option")
+        .text(function(d){ return d; })
+        .property("selected", function(d){ return d === "STARBUCKS"; });
+    
+    // Initially disable select option for compared_to data/select_y
+    disable_axis();
 
-     state_button.on("click", () => {
-      state.set_map_state("default");
-      disable_axis();
+    // Set map state to correspond to whichever button was clicked
+    // Show/hide select_y if the new states are graph/graph_circle
+    state_button.on("click", () => {
+        state.set_map_state("default");
+        disable_axis();
     });
     circle_button.on("click", () => {
-      state.set_map_state("circle");
-      disable_axis();
+        state.set_map_state("circle");
+        disable_axis();
     });
     layout_button.on("click", () => {
-      state.set_map_state("layout");
-      disable_axis();
+        state.set_map_state("layout");
+        disable_axis();
     });
     graph_button.on("click", () => {
-      state.set_map_state("graph");
-      enable_axis();
+        state.set_map_state("graph");
+        enable_axis();
     });
     graph_circle_button.on("click", () => {
-      state.set_map_state("graph_circle");
-      enable_axis();
+        state.set_map_state("graph_circle");
+        enable_axis();
     });
 
-    // $("#INFO_button").click(function(){
-    //   $(this).toggleClass("active");
-    //   $("#info").slideToggle(500);
-    // });
-
     info_button.on("click",maxHeightSlide);
-
-    // map.onClick((d) => state.set_examine_state(d.id));
-
 });
 
+// Disable and hide select menu for compared_to data
 function disable_axis(){
   var htmlStyles = window.getComputedStyle(document.querySelector("html"));
   var dis = htmlStyles.getPropertyValue("--disable-color");
-  
+
   select_y.attr("disabled",true)
   .style("display", "none")
   .style("color",dis)
   .style("border-color",dis);
 }
 
+// Enable and show select menu for compared_to data
 function enable_axis(){
   var htmlStyles = window.getComputedStyle(document.querySelector("html"));
   var en = htmlStyles.getPropertyValue("--text-color");
-  // SO APPARENTLY SETTING IT AS FALSE WON'T ACTUALLY MAKE IT FALSE, WEIRD
   select_y.attr("disabled",null)
   .style("display", "inline-block")
   .style("color",en)
@@ -107,7 +114,6 @@ function enable_axis(){
 function maxHeightSlide() {
     if(info_box.style.maxHeight !== "400px") {
       info_box.style.maxHeight = "400px";
-      // info_button.className = "active";
     } else {
       info_box.style.maxHeight = "0px";
     }
