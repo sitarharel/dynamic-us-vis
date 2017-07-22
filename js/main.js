@@ -12,9 +12,9 @@ var select_y = d3.select("#y_axis");
 var info_box = document.getElementById('info'); 
 
 d3.queue()
-.defer(d3.json, "us.json")
-.defer(d3.csv, "statedata.csv")
-.defer(d3.csv,"units.csv")
+.defer(d3.json, "../data/us.json")
+.defer(d3.csv, "../data/statedata.csv")
+.defer(d3.csv, "../data/units.csv")
 .await(function(err, us, pop, units){
     if (err) throw err;
     var svg = d3.select("#statesmap")
